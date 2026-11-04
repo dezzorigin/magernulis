@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WriteOnAir - Canva Cornell Note Studio</title>
+    <meta name="description" content="Generator Catatan Tulisan Tangan Cornell Note otomatis dengan fitur Ekspor PDF, Multi-Halaman, dan Imperfeksi Manusia Realistis.">
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+    
+    <!-- Google Fonts Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Architects+Daughter&family=Caveat:wght@400..700&family=Dancing+Script:wght@500;700&family=Gochi+Hand&family=Indie+Flower&family=Just+Me+Again+Down+Here&family=Kalam:wght@300;400;700&family=Loved+by+the+King&family=Marck+Script&family=Nanum+Brush+Script&family=Over+the+Rainbow&family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sacramento&family=Satisfy&family=Shadows+Into+Light&family=Waiting+for+the+Sunrise&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body data-theme="dark">
+    <div class="canva-app">
+        <!-- 1. CANVA TOP NAVIGATION BAR -->
+        <header class="canva-topbar">
+            <div class="topbar-left">
+                <div class="brand">
+                    <img src="./assets/logo.png" alt="WriteOnAir Logo" class="brand-img-icon">
+                    <span class="brand-title">WriteOnAir</span>
+                </div>
+                
+                <div class="topbar-divider"></div>
+
+                <!-- Document Title Editor Input -->
+                <div class="doc-title-container">
+                    <input type="text" id="doc-title-input" class="doc-title-input" value="Catatan Algoritma & Pemrograman" oninput="updateDocumentTitle(this.value)" title="Klik untuk merubah nama dokumen">
+                    <svg class="icon-svg-sm edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </div>
+            </div>
+
+            <div class="topbar-center">
+                <div class="save-status-badge">
+                    <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Tersimpan di Lokal</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <!-- Hidden file input for JSON import -->
+                <input type="file" id="import-json-input" accept=".json" onchange="importProjectJSON(event)" style="display:none;">
+
+                <!-- Action Buttons -->
+                <button type="button" class="topbar-action-btn" onclick="exportProjectJSON()" title="Simpan Draft (.json)">
+                    <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>Simpan Draft</span>
+                </button>
+                <button type="button" class="topbar-action-btn" onclick="triggerImportJSON()" title="Buka Draft (.json)">
+                    <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span>Buka Draft</span>
+                </button>
+                <button type="button" class="topbar-action-btn" onclick="loadSampleData()" title="Isi Contoh Catatan">
+                    <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>
+                    <span>Contoh</span>
+                </button>
+                <button type="button" class="topbar-action-btn" onclick="clearForm()" title="Bersihkan Catatan">
+                    <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span>Reset</span>
+                </button>
+
+                <div class="topbar-divider"></div>
+
+                <!-- Dark / Light Theme Toggle -->
+                <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle" title="Ubah Tema Studio">
+                    <svg class="icon-svg-sm theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <span class="theme-text">Dark</span>
+                </button>
+
+                <!-- Canva Main Export Dropdown Button -->
+                <div class="export-dropdown" id="export-dropdown">
+                    <button type="button" class="btn-canva-share dropdown-toggle" onclick="toggleExportMenu()">
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span>Bagikan / Unduh</span>
+                        <svg class="icon-svg-sm chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+
+                    <div class="dropdown-menu hidden" id="export-menu">
+                        <button type="button" class="dropdown-item" onclick="downloadPNG()">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <span>Unduh PNG (Halaman Ini)</span>
+                        </button>
+                        <button type="button" class="dropdown-item" onclick="downloadAllPNGZip()">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            <span>Unduh Paket ZIP (Semua Halaman)</span>
+                        </button>
+                        <button type="button" class="dropdown-item" onclick="exportPDF(false)">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            <span>Ekspor PDF HD (Halaman Ini)</span>
+                        </button>
+                        <button type="button" class="dropdown-item" onclick="exportPDF(true)">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                            <span>Ekspor PDF HD (Semua Halaman)</span>
+                        </button>
+                        <button type="button" class="dropdown-item" onclick="printDocument()">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                            <span>Cetak Dokumen (Direct Print)</span>
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item" onclick="exportProjectJSON()">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            <span>Simpan Project (.json)</span>
+                        </button>
+                        <button type="button" class="dropdown-item" onclick="triggerImportJSON()">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>Buka Project (.json)</span>
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item" onclick="copyImageToClipboard()">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            <span>Salin Gambar ke Clipboard</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. MAIN CANVA STUDIO BODY -->
+        <div class="canva-body">
+            <!-- LEFTMOST ICON RAIL (CANVA TOOL DOCK) -->
+            <aside class="canva-icon-rail">
+                <button type="button" class="rail-btn active" data-rail="content" onclick="switchRailTab('content')" title="Isi Catatan & Header">
+                    <svg class="rail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>Teks & Isi</span>
+                </button>
+                <button type="button" class="rail-btn" data-rail="style" onclick="switchRailTab('style')" title="Kertas, Tinta & Filter Scanner">
+                    <svg class="rail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.72 1.7-1.65 0-.42-.16-.8-.43-1.1a1.6 1.6 0 0 1 .43-2.65H15a5 5 0 0 0 5-5c0-5.5-4.5-10-8-10z"/></svg>
+                    <span>Gaya Kertas</span>
+                </button>
+                <button type="button" class="rail-btn" data-rail="humanizer" onclick="switchRailTab('humanizer')" title="Imperfeksi Tulisan Tangan (Humanizer)">
+                    <svg class="rail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M12 12h.01"/><path d="M16 16h.01"/><path d="M8 16h.01"/></svg>
+                    <span>Humanizer</span>
+                </button>
+                <button type="button" class="rail-btn" data-rail="typography" onclick="switchRailTab('typography')" title="Pilihan Font Tulisan Tangan & Line Height">
+                    <svg class="rail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                    <span>Font & Gaya</span>
+                </button>
+                <button type="button" class="rail-btn" data-rail="pages" onclick="switchRailTab('pages')" title="Manajemen Lembar Kertas Catatan">
+                    <svg class="rail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    <span>Halaman (<span id="page-count-badge">1</span>)</span>
+                </button>
+            </aside>
+
+            <!-- SECONDARY CANVA DRAWER PANEL -->
+            <aside class="canva-drawer" id="canva-drawer">
+                <div class="drawer-header">
+                    <h2 id="drawer-title">Pengisian Teks Catatan</h2>
+                    <button type="button" class="drawer-collapse-btn" onclick="toggleDrawerCollapse()" id="drawer-collapse-btn" title="Sembunyikan Panel Sidebar">
+                        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                </div>
+
+                <div class="drawer-content">
+                    <!-- PANEL 1: TEKS & ISI CATATAN -->
+                    <div id="pane-content" class="drawer-pane active">
+                        <!-- Preset Templates Section -->
+                        <section class="control-group">
+                            <div class="group-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                <span>Template Preset Siap Pakai</span>
+                            </div>
+                            <div class="preset-templates-grid">
+                                <button type="button" class="preset-card" onclick="loadPresetTemplate('it')" title="Gunakan Template Algoritma & Pemrograman">
+                                    <span class="preset-icon">💻</span>
+                                    <span class="preset-name">Algoritma CS</span>
+                                </button>
+                                <button type="button" class="preset-card" onclick="loadPresetTemplate('math')" title="Gunakan Template Matematika & Kalkulus">
+                                    <span class="preset-icon">📐</span>
+                                    <span class="preset-name">Matematika</span>
+                                </button>
+                                <button type="button" class="preset-card" onclick="loadPresetTemplate('history')" title="Gunakan Template Sejarah & Sastra">
+                                    <span class="preset-icon">📜</span>
+                                    <span class="preset-name">Sejarah</span>
+                                </button>
+                                <button type="button" class="preset-card" onclick="loadPresetTemplate('book')" title="Gunakan Template Resume Buku">
+                                    <span class="preset-icon">📖</span>
+                                    <span class="preset-name">Resume Buku</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Identitas & Header -->
+                        <section class="control-group">
+                            <div class="group-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <span>Header Identitas Kertas</span>
+                            </div>
+                            <div class="input-grid">
+                                <div class="field full">
+                                    <label class="toggle-control">
+                                        <input type="checkbox" id="show-header-input" checked onchange="toggleHeaderVisibility(this.checked)">
+                                        <span>Tampilkan Kotak Header (Topik, Nama, NIM, Tanggal)</span>
+                                    </label>
+                                </div>
+                                <div class="field full">
+                                    <label for="topic-input">Topik Catatan</label>
+                                    <textarea id="topic-input" placeholder="Judul / Topik Pembahasan..." rows="2"></textarea>
+                                </div>
+                                <div class="field-row">
+                                    <div class="field">
+                                        <label for="name-input">Nama</label>
+                                        <input type="text" id="name-input" placeholder="Nama Lengkap...">
+                                    </div>
+                                    <div class="field">
+                                        <label for="nim-input">NIM</label>
+                                        <input type="text" id="nim-input" placeholder="NIM / No. Absen...">
+                                    </div>
+                                </div>
+                                <div class="field full">
+                                    <div class="label-with-action">
+                                        <label for="date-input">Tanggal Catatan</label>
+                                        <button type="button" class="btn-text" onclick="setAutoDate()">Hari Ini</button>
+                                    </div>
+                                    <input type="text" id="date-input" placeholder="Tanggal Catatan...">
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Content Cornell Note -->
+                        <section class="control-group">
+                            <div class="group-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <span>Isi Utama Cornell Note</span>
+                            </div>
+                            <div class="input-grid">
+                                <div class="field full">
+                                    <label for="question-input">Pertanyaan (Kolom Kiri)</label>
+                                    <textarea id="question-input" placeholder="1. Pertanyaan utama&#10;2. Kata kunci penting..." rows="4"></textarea>
+                                </div>
+                                <div class="field full">
+                                    <label for="note-input">Catatan (Kolom Kanan)</label>
+                                    <textarea id="note-input" placeholder="Isi pembahasan detail dan penjelasan..." rows="7"></textarea>
+                                </div>
+                                <div class="field full">
+                                    <label for="summary-input">Rangkuman (Bawah Footer)</label>
+                                    <textarea id="summary-input" placeholder="Kesimpulan akhir dari materi..." rows="3"></textarea>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- PANEL 2: GAYA KERTAS & TINTA -->
+                    <div id="pane-style" class="drawer-pane">
+                        <section class="control-group">
+                            <div class="group-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                                <span>Tipe Kertas & Tinta Pulpen</span>
+                            </div>
+                            <div class="input-grid">
+                                <!-- Paper Selection -->
+                                <div class="field full">
+                                    <label>Tipe Kertas Catatan</label>
+                                    <div class="paper-selector">
+                                        <button type="button" class="paper-opt" data-paper="folio" onclick="setPaperType('folio')">
+                                            <span class="p-preview p-folio"></span>
+                                            <span class="p-name">Folio Bergaris</span>
+                                        </button>
+                                        <button type="button" class="paper-opt" data-paper="grid" onclick="setPaperType('grid')">
+                                            <span class="p-preview p-grid"></span>
+                                            <span class="p-name">Grid Binder</span>
+                                        </button>
+                                        <button type="button" class="paper-opt" data-paper="vintage" onclick="setPaperType('vintage')">
+                                            <span class="p-preview p-vintage"></span>
+                                            <span class="p-name">Vintage Cream</span>
+                                        </button>
+                                        <button type="button" class="paper-opt active" data-paper="plain" onclick="setPaperType('plain')">
+                                            <span class="p-preview p-plain"></span>
+                                            <span class="p-name">HVS Putih Polos</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Ink Color Selection -->
+                                <div class="field full">
+                                    <label>Warna Tinta Pulpen</label>
+                                    <div class="ink-selector">
+                                        <button type="button" class="ink-opt" data-ink="blue" style="--ink-color: #1e3a8a" onclick="setInkColor('blue')">
+                                            <span class="ink-dot"></span> Pulpen Biru
+                                        </button>
+                                        <button type="button" class="ink-opt active" data-ink="black" style="--ink-color: #111827" onclick="setInkColor('black')">
+                                            <span class="ink-dot"></span> Gel Hitam
+                                        </button>
+                                        <button type="button" class="ink-opt" data-ink="navy" style="--ink-color: #0f172a" onclick="setInkColor('navy')">
+                                            <span class="ink-dot"></span> Classic Navy
+                                        </button>
+                                        <button type="button" class="ink-opt" data-ink="red" style="--ink-color: #991b1b" onclick="setInkColor('red')">
+                                            <span class="ink-dot"></span> Merah Catatan
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Studio Desk Backdrop Selection -->
+                                <div class="field full">
+                                    <label>Backdrop Studio / Meja Belajar</label>
+                                    <div class="desk-selector">
+                                        <button type="button" class="desk-opt active" data-desk="grid" onclick="setDeskBackdrop('grid')">
+                                            <span class="d-preview d-grid"></span> Dot Grid
+                                        </button>
+                                        <button type="button" class="desk-opt" data-desk="wood" onclick="setDeskBackdrop('wood')">
+                                            <span class="d-preview d-wood"></span> Meja Kayu
+                                        </button>
+                                        <button type="button" class="desk-opt" data-desk="studio" onclick="setDeskBackdrop('studio')">
+                                            <span class="d-preview d-studio"></span> Minimalis
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Scan Effect Filter Selection -->
+                                <div class="field full">
+                                    <label for="scan-effect">Efek Camera Scanner</label>
+                                    <select id="scan-effect" onchange="setScanEffect(this.value)">
+                                        <option value="none" selected>Tanpa Filter (Kertas Asli)</option>
+                                        <option value="clean">Clean CamScanner (High Contrast)</option>
+                                        <option value="shadow">Shadow Camera (Bayangan Kamera HP)</option>
+                                        <option value="warm">Warm Desk Lamp (Lampu Meja Belajar)</option>
+                                        <option value="photocopy">Monochrome Photocopy (Fotokopi Vintage)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- PANEL 3: HUMANIZER IMPERFEKSI TANGAN -->
+                    <div id="pane-humanizer" class="drawer-pane">
+                        <section class="control-group gacha-group">
+                            <div class="group-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M12 12h.01"/><path d="M16 16h.01"/><path d="M8 16h.01"/></svg>
+                                <span>Imperfeksi Tulisan Tangan</span>
+                            </div>
+                            <p class="group-desc">Mengacak sudut miring dan offset kata secara individual seperti variasi fisik tulisan tangan manusia asli.</p>
+
+                            <div class="input-grid">
+                                <button type="button" class="btn btn-gacha full-btn" onclick="randomizeHumanizer()">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M12 12h.01"/><path d="M16 16h.01"/><path d="M8 16h.01"/></svg>
+                                    <span>Gacha Acak Tulisan Humanis</span>
+                                </button>
+
+                                <div class="field full">
+                                    <div class="label-val">
+                                        <label for="humanizer-level">Tingkat Ketidakrapihan</label>
+                                        <span id="humanizer-level-val">Natural (Sedang)</span>
+                                    </div>
+                                    <input type="range" id="humanizer-level" min="0" max="3" step="1" value="2" oninput="setHumanizerLevel(this.value)">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- PANEL 4: FONT & TIPOGRAFI -->
+                    <div id="pane-typography" class="drawer-pane">
+                        <section class="control-group">
+                            <div class="group-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                                <span>Tipografi & Ukuran Tulisan</span>
+                            </div>
+                            <div class="input-grid">
+                                <div class="field full">
+                                    <label for="font-select">Pilih Font Tulisan Tangan</label>
+                                    <select id="font-select" onchange="fontOption(this.value)">
+                                        <option value="'Just Me Again Down Here', cursive" selected>Just Me Again Down Here (Cursive Tipis)</option>
+                                        <option value="'Caveat', cursive">Caveat (Tangan Natural Cepat)</option>
+                                        <option value="'Kalam', cursive">Kalam (Pulpen Rapi Spidol)</option>
+                                        <option value="'Architects Daughter', cursive">Architects Daughter (Tulis Arsitek)</option>
+                                        <option value="'Indie Flower', cursive">Indie Flower (Bulat Santai)</option>
+                                        <option value="'Patrick Hand', cursive">Patrick Hand (Tulisan Buku Tulis)</option>
+                                        <option value="'Shadows Into Light', cursive">Shadows Into Light (Tangan Runcing)</option>
+                                        <option value="'Amatic SC', cursive">Amatic SC (Kapital Panjang)</option>
+                                        <option value="'Dancing Script', cursive">Dancing Script (Kaligrafi Halus)</option>
+                                        <option value="'Gochi Hand', cursive">Gochi Hand (Tulis Kapur/Spidol)</option>
+                                        <option value="'Satisfy', cursive">Satisfy (Kaligrafi Ringkas)</option>
+                                        <option value="'Sacramento', cursive">Sacramento (Sambung Halus)</option>
+                                        <option value="'Marck Script', cursive">Marck Script (Miring Estetik)</option>
+                                        <option value="'Loved by the King', cursive">Loved by the King (Long Handwriting)</option>
+                                        <option value="'Nanum Brush Script', cursive">Nanum Brush (Kuas Halus)</option>
+                                        <option value="'Over the Rainbow', cursive">Over the Rainbow (Ceria Playful)</option>
+                                        <option value="'Waiting for the Sunrise', cursive">Waiting for Sunrise (Tipis Miring)</option>
+                                    </select>
+                                </div>
+                                <div class="field full">
+                                    <div class="label-val">
+                                        <label for="font-size-range">Ukuran Font Canvas</label>
+                                        <span id="font-size-val">1.25rem</span>
+                                    </div>
+                                    <input type="range" id="font-size-range" min="0.9" max="1.8" step="0.05" value="1.25" oninput="fontSizeOption(this.value + 'rem')">
+                                </div>
+                                <div class="field full">
+                                    <div class="label-val">
+                                        <label for="line-height-range">Jarak Antar Baris (Line Height)</label>
+                                        <span id="line-height-val">1.45</span>
+                                    </div>
+                                    <input type="range" id="line-height-range" min="1.1" max="2.0" step="0.05" value="1.45" oninput="lineHeightOption(this.value)">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- PANEL 5: MANAJEMEN HALAMAN -->
+                    <div id="pane-pages" class="drawer-pane">
+                        <section class="control-group">
+                            <div class="group-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                <span>Kelola Lembar Kertas</span>
+                            </div>
+
+                            <div class="field full" style="margin-bottom: 0.85rem;">
+                                <label for="page-title-input">Nama Lembar Kertas Ini</label>
+                                <input type="text" id="page-title-input" placeholder="Contoh: Halaman 1 / Bab 1..." oninput="updateCurrentPageTitle(this.value)">
+                            </div>
+                            
+                            <div class="pages-list" id="pages-list-container">
+                                <!-- Dynamic Page Tabs List -->
+                            </div>
+
+                            <div class="page-action-buttons">
+                                <button type="button" class="btn btn-secondary full-btn" onclick="addNewPage()">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    <span>Tambah Kertas Baru</span>
+                                </button>
+                                <button type="button" class="btn btn-ghost full-btn danger-text" onclick="deleteCurrentPage()" id="btn-delete-page">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    <span>Hapus Kertas Ini</span>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 3. CENTRAL CANVA WORKSPACE CANVAS -->
+            <main class="canva-workspace">
+                <div class="canvas-viewport" id="viewport">
+                    <div class="canvas-wrapper" id="canvas-wrapper">
+                        <!-- Cornell Note Paper Canvas (#cn) -->
+                        <div id="cn" class="paper-plain ink-black scan-none">
+                            <!-- Cornell Note Header -->
+                            <div class="cn-header">
+                                <div class="topic-box">
+                                    <span class="box-label">Topik</span>
+                                    <p id="topic" class="handwritten"></p>
+                                </div>
+                                <div class="meta-box">
+                                    <div class="meta-row">
+                                        <span class="meta-label">Nama</span>
+                                        <span id="name" class="handwritten"></span>
+                                    </div>
+                                    <div class="meta-row">
+                                        <span class="meta-label">NIM</span>
+                                        <span id="nim" class="handwritten"></span>
+                                    </div>
+                                    <div class="meta-row">
+                                        <span class="meta-label">Tanggal</span>
+                                        <span id="date" class="handwritten"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cornell Note Main Box (Body & Summary attached together - 1px black border) -->
+                            <div class="cn-main-box">
+                                <div class="cn-body">
+                                    <div class="cues-col">
+                                        <span class="box-label">Pertanyaan</span>
+                                        <p id="question" class="handwritten"></p>
+                                    </div>
+                                    <div class="notes-col">
+                                        <span class="box-label">Catatan</span>
+                                        <p id="note" class="handwritten"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Cornell Note Footer -->
+                                <div class="cn-footer">
+                                    <span class="box-label">Rangkuman</span>
+                                    <p id="summary" class="handwritten"></p>
+                                </div>
+                            </div>
+                            
+                            <!-- Scanner Overlay Shader Layer -->
+                            <div class="scan-overlay"></div>
+                        </div>
+
+                        <!-- Realistic Desk Pen Prop (Overlay for Desk Mockups) -->
+                        <div class="desk-pen-prop" id="desk-pen-prop" title="Pulpen Gel Pen Penulis">
+                            <div class="pen-body">
+                                <div class="pen-cap"></div>
+                                <div class="pen-clip"></div>
+                                <div class="pen-grip"></div>
+                                <div class="pen-tip"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 4. CANVA BOTTOM STATUS BAR -->
+        <footer class="canva-bottombar">
+            <div class="bottombar-left">
+                <button type="button" class="bottombar-btn" onclick="switchRailTab('pages')">
+                    <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    <span><span id="current-page-title">Halaman 1</span> (<span id="current-page-num">1</span>/<span id="total-page-num">1</span>)</span>
+                </button>
+            </div>
+
+            <div class="bottombar-center">
+                <!-- Page Switcher Pills -->
+                <div class="preview-page-pills" id="preview-page-pills">
+                    <!-- Dynamic page pills -->
+                </div>
+            </div>
+
+            <div class="bottombar-right">
+                <div class="zoom-toolbar">
+                    <button type="button" class="zoom-btn" onclick="adjustZoom(-0.1)" title="Zoom Out (-)">
+                        <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+
+                    <input type="range" id="zoom-range" min="30" max="150" value="100" class="zoom-slider" oninput="setZoomFromSlider(this.value)" title="Geser untuk merubah Zoom">
+
+                    <span id="zoom-value" class="zoom-value-text">100%</span>
+
+                    <button type="button" class="zoom-btn" onclick="adjustZoom(0.1)" title="Zoom In (+)">
+                        <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+
+                    <div class="zoom-divider"></div>
+
+                    <button type="button" class="zoom-btn" onclick="resetZoom()" title="Fit to Screen (100%)">
+                        <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        <span>Fit</span>
+                    </button>
+
+                    <button type="button" class="zoom-btn" onclick="toggleFullscreen()" title="Layar Penuh Workspace">
+                        <svg class="icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Custom Canva-Styled Confirm Modal Component -->
+    <div id="custom-modal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-icon-badge">
+                <svg class="icon-svg-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3 id="modal-title" class="modal-title">Konfirmasi Tindakan</h3>
+            <p id="modal-message" class="modal-message">Apakah Anda yakin?</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-cancel" id="modal-cancel-btn">Batal</button>
+                <button type="button" class="modal-btn modal-confirm" id="modal-confirm-btn">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Libraries: html2canvas, jsPDF & JSZip for HD Export Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- Custom Engine JavaScript -->
+    <script src="./js/index.js"></script>
+</body>
+</html>

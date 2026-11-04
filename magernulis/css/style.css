@@ -1,0 +1,1469 @@
+/* ==========================================
+   WriteOnAir Studio - Canva Editor Design System
+   ========================================== */
+
+/* 1. Global CSS Reset & Tokens */
+:root {
+    /* Canva Color Palette (Dark Theme Default) */
+    --bg-topbar: #0e131f;
+    --bg-rail: #131722;
+    --bg-drawer: #181d2a;
+    --bg-workspace: #0b0e14;
+    --bg-card: #1f2536;
+    --input-bg: #141824;
+    --input-border: #2d3548;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-card: rgba(255, 255, 255, 0.1);
+    --border-focus: #7d2ae8;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    /* Canva Brand Accents */
+    --canva-purple: #7d2ae8;
+    --canva-purple-hover: #6b21a8;
+    --canva-cyan: #00c4cc;
+    --canva-gradient: linear-gradient(135deg, #00c4cc 0%, #7d2ae8 100%);
+    --dot-color: rgba(255, 255, 255, 0.07);
+
+    --primary: #7d2ae8;
+    --primary-hover: #6b21a8;
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.35);
+
+    --canvas-font-size: 1.25rem;
+    --canvas-line-height: 1.45;
+}
+
+/* Light Theme Overrides */
+[data-theme="light"] {
+    --bg-topbar: #ffffff;
+    --bg-rail: #f1f5f9;
+    --bg-drawer: #ffffff;
+    --bg-workspace: #e2e8f0;
+    --bg-card: #f8fafc;
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --border-color: #e2e8f0;
+    --border-card: #e2e8f0;
+    --border-focus: #7d2ae8;
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --dot-color: rgba(0, 0, 0, 0.07);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-workspace);
+    color: var(--text-primary);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 2. CANVA APP GRID LAYOUT */
+.canva-app {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ------------------------------------------
+   CANVA TOP NAVIGATION BAR (.canva-topbar)
+   ------------------------------------------ */
+.canva-topbar {
+    height: 52px;
+    background: var(--bg-topbar);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 50;
+    user-select: none;
+}
+
+.topbar-left, .topbar-center, .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Brand Logo & Name */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+}
+
+.brand-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--canva-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(125, 42, 232, 0.3);
+}
+
+.brand-svg {
+    width: 18px;
+    height: 18px;
+    color: #ffffff;
+}
+
+.brand-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: var(--canva-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.topbar-divider {
+    width: 1px;
+    height: 22px;
+    background: var(--border-color);
+    margin: 0 0.2rem;
+}
+
+/* Editable Document Title */
+.doc-title-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.doc-title-input {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+    max-width: 260px;
+    transition: all 0.15s ease;
+}
+
+.doc-title-input:hover, .doc-title-input:focus {
+    background: rgba(125, 42, 232, 0.08);
+    border-color: var(--border-focus);
+}
+
+.edit-icon {
+    position: absolute;
+    right: -20px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+    color: var(--text-muted);
+}
+
+.doc-title-container:hover .edit-icon {
+    opacity: 1;
+}
+
+/* Save Status Badge */
+.save-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+}
+
+/* Topbar Buttons */
+.topbar-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.4rem 0.65rem;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.topbar-action-btn:hover {
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    padding: 0.38rem 0.75rem;
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--canva-purple);
+}
+
+/* Canva Share / Export Dropdown Button */
+.btn-canva-share {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--canva-purple);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    font-weight: 700;
+    font-size: 0.84rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(125, 42, 232, 0.35);
+    transition: all 0.15s ease;
+}
+
+.btn-canva-share:hover {
+    background: var(--canva-purple-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(125, 42, 232, 0.45);
+}
+
+/* Export Dropdown Menu */
+.export-dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 250px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: 0.4rem;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 100;
+    backdrop-filter: blur(16px);
+}
+
+.dropdown-menu.hidden {
+    display: none;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.8rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-item:hover {
+    background: var(--input-bg);
+    color: var(--canva-purple);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0.2rem 0;
+}
+
+/* ------------------------------------------
+   CANVA BODY MAIN LAYOUT (.canva-body)
+   ------------------------------------------ */
+.canva-body {
+    display: flex;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ------------------------------------------
+   LEFTMOST ICON RAIL (.canva-icon-rail)
+   ------------------------------------------ */
+.canva-icon-rail {
+    width: 72px;
+    background: var(--bg-rail);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 0;
+    z-index: 40;
+    user-select: none;
+}
+
+.rail-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.85rem 0.25rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+}
+
+.rail-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.15s ease;
+}
+
+.rail-btn:hover {
+    color: var(--text-primary);
+    background: rgba(125, 42, 232, 0.08);
+}
+
+.rail-btn:hover .rail-icon {
+    transform: scale(1.1);
+}
+
+.rail-btn.active {
+    color: var(--canva-purple);
+    background: rgba(125, 42, 232, 0.12);
+}
+
+.rail-btn.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 3px;
+    background: var(--canva-purple);
+    border-radius: 0 4px 4px 0;
+}
+
+/* ------------------------------------------
+   SECONDARY CANVA DRAWER PANEL (.canva-drawer)
+   ------------------------------------------ */
+.canva-drawer {
+    width: 320px;
+    background: var(--bg-drawer);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    z-index: 30;
+    transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.canva-drawer.collapsed {
+    margin-left: -320px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.drawer-header {
+    height: 52px;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-header h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.drawer-collapse-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.drawer-collapse-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--canva-purple);
+}
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.drawer-pane {
+    display: none;
+}
+
+.drawer-pane.active {
+    display: block;
+}
+
+/* ------------------------------------------
+   DRAWER CONTROL GROUPS & FORM INPUTS
+   ------------------------------------------ */
+.control-group {
+    margin-bottom: 1.5rem;
+}
+
+.group-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.group-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.85rem;
+    line-height: 1.4;
+}
+
+.input-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.field label, .toggle-control span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.label-with-action, .label-val {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.label-val span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--canva-purple);
+}
+
+.btn-text {
+    background: transparent;
+    border: none;
+    color: var(--canva-purple);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+input[type="text"], textarea, select {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 100%;
+}
+
+input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: var(--canva-purple);
+    box-shadow: 0 0 0 3px rgba(125, 42, 232, 0.15);
+}
+
+textarea {
+    resize: vertical;
+    line-height: 1.45;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+/* Paper Selector Cards */
+.paper-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.paper-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.paper-opt.active {
+    border-color: var(--canva-purple);
+    background: rgba(125, 42, 232, 0.1);
+}
+
+.p-preview {
+    width: 100%;
+    height: 38px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.p-folio {
+    background-color: #fdfdfd;
+    background-image: repeating-linear-gradient(transparent, transparent 7px, #cbd5e1 8px);
+}
+
+.p-grid {
+    background-color: #ffffff;
+    background-image: linear-gradient(to right, #cbd5e1 1px, transparent 1px), linear-gradient(to bottom, #cbd5e1 1px, transparent 1px);
+    background-size: 8px 8px;
+}
+
+.p-vintage {
+    background-color: #f5eedc;
+    background-image: radial-gradient(#d3c59e 1px, transparent 1px);
+    background-size: 6px 6px;
+}
+
+.p-plain { background-color: #ffffff; }
+
+.p-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Ink Selector Options */
+.ink-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.ink-opt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ink-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--ink-color);
+}
+
+.ink-opt.active {
+    border-color: var(--canva-purple);
+    background: rgba(125, 42, 232, 0.1);
+}
+
+/* Gacha & Buttons */
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+}
+
+.btn-gacha {
+    background: var(--canva-gradient);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(125, 42, 232, 0.35);
+}
+
+.btn-gacha:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(125, 42, 232, 0.45);
+}
+
+.btn-secondary {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    border-color: var(--canva-purple);
+    color: var(--canva-purple);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.full-btn {
+    width: 100%;
+}
+
+.danger-text { color: #ef4444; }
+.danger-text:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* Pages List Manager */
+.pages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+}
+
+.page-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0.75rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.page-item:hover {
+    border-color: var(--canva-purple);
+}
+
+.page-item.active {
+    border-color: var(--canva-purple);
+    background: rgba(125, 42, 232, 0.12);
+}
+
+.page-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* ------------------------------------------
+   CENTRAL CANVA WORKSPACE (.canva-workspace)
+   ------------------------------------------ */
+.canva-workspace {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-workspace);
+}
+
+.canvas-viewport {
+    flex: 1;
+    overflow: auto;
+    padding: 3rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background-image: radial-gradient(var(--dot-color) 1.2px, transparent 1.2px);
+    background-size: 24px 24px;
+}
+
+.canvas-wrapper {
+    transform-origin: top center;
+    transition: transform 0.15s ease-out;
+}
+
+/* ------------------------------------------
+   THE CORNELL NOTE PAPER CANVAS (#cn)
+   ------------------------------------------ */
+#cn {
+    width: 650px;
+    height: 920px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    transition: background 0.3s ease, filter 0.3s ease;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Paper Background Types */
+#cn.paper-folio {
+    background-color: #fdfdfd;
+    background-image: repeating-linear-gradient(transparent, transparent 27px, #cbd5e1 28px);
+}
+
+#cn.paper-grid {
+    background-color: #ffffff;
+    background-image: linear-gradient(to right, #cbd5e1 1px, transparent 1px), linear-gradient(to bottom, #cbd5e1 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+#cn.paper-vintage {
+    background-color: #f5eedc;
+    background-image: radial-gradient(#d3c59e 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+#cn.paper-plain {
+    background-color: #ffffff;
+    background-image: none;
+}
+
+/* Ink Color Classes */
+#cn.ink-blue { --ink-color: #1e3a8a; }
+#cn.ink-black { --ink-color: #111827; }
+#cn.ink-navy { --ink-color: #0f172a; }
+#cn.ink-red { --ink-color: #991b1b; }
+
+/* Handwritten Base Text */
+.handwritten, .hw-word {
+    font-family: var(--canvas-font-family, 'Just Me Again Down Here', cursive);
+    color: var(--ink-color);
+    font-size: var(--canvas-font-size);
+    line-height: var(--canvas-line-height);
+    word-break: break-word;
+}
+
+.hw-word {
+    display: inline-block;
+    white-space: nowrap;
+    transform-origin: center center;
+    margin-right: 0.22em;
+    transition: transform 0.15s ease-out;
+}
+
+/* Paper Box Labels (Times New Roman Bold 1px Vector Line Match CornellNote.pdf) */
+.box-label {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: normal;
+    color: #000000;
+    margin-bottom: 0.35rem;
+    display: block;
+    text-transform: none;
+}
+
+/* Cornell Note Header Box */
+#cn.no-header .cn-header {
+    display: none;
+}
+
+.cn-header {
+    display: flex;
+    border: 1px solid #000000;
+    margin-bottom: 14px;
+    background: transparent;
+    min-height: 120px;
+    box-sizing: border-box;
+}
+
+.topic-box {
+    flex: 1.5;
+    border-right: 1px solid #000000;
+    padding: 0.6rem 0.75rem;
+}
+
+.meta-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #000000;
+    padding: 0.25rem 0.6rem;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.meta-row:last-child {
+    border-bottom: none;
+}
+
+.meta-label {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #000000;
+    min-width: 65px;
+    text-transform: none;
+}
+
+/* Cornell Note Main Box Container (Body & Summary Attached - 1px Black Border) */
+.cn-main-box {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    border: 1px solid #000000;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+/* Cornell Note Body */
+.cn-body {
+    display: flex;
+    flex: 1;
+    border-bottom: 1px solid #000000;
+    background: transparent;
+    min-height: 480px;
+}
+
+.cues-col {
+    width: 35%;
+    border-right: 1px solid #000000;
+    padding: 0.6rem 0.75rem;
+}
+
+.notes-col {
+    width: 65%;
+    padding: 0.6rem 0.75rem;
+}
+
+/* Cornell Note Footer */
+.cn-footer {
+    height: 140px;
+    padding: 0.6rem 0.75rem;
+    background: transparent;
+}
+
+/* Scanner Overlay Shader */
+.scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#cn.scan-none { filter: none; }
+#cn.scan-clean { filter: contrast(135%) brightness(105%) saturate(85%); }
+#cn.scan-shadow { filter: contrast(115%) brightness(96%); }
+#cn.scan-warm { filter: sepia(25%) contrast(110%) brightness(102%); }
+#cn.scan-photocopy { filter: grayscale(100%) contrast(210%) brightness(88%); }
+
+/* Brand Image Logo Icon */
+.brand-img-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 10px rgba(125, 42, 232, 0.35);
+}
+
+/* ------------------------------------------
+   CANVA BOTTOM STATUS BAR (.canva-bottombar)
+   ------------------------------------------ */
+.canva-bottombar {
+    height: 48px;
+    background: var(--bg-topbar);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    gap: 0.75rem;
+    z-index: 50;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.bottombar-left {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.bottombar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.bottombar-center::-webkit-scrollbar {
+    display: none;
+}
+
+.bottombar-right {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0.5rem;
+}
+
+.bottombar-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.bottombar-btn:hover {
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+/* Preview Page Pills */
+.preview-page-pills {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.page-pill {
+    padding: 0.25rem 0.65rem;
+    font-size: 0.74rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--input-border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.page-pill:hover {
+    border-color: var(--canva-purple);
+}
+
+.page-pill.active {
+    background: var(--canva-purple);
+    color: #ffffff;
+    border-color: var(--canva-purple);
+}
+
+/* Zoom Toolbar */
+.zoom-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 32px;
+}
+
+.zoom-btn {
+    height: 30px;
+    min-width: 30px;
+    padding: 0 0.5rem;
+    border-radius: 6px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+}
+
+.zoom-btn:hover {
+    border-color: var(--canva-purple);
+    color: var(--canva-purple);
+}
+
+.zoom-slider {
+    width: 85px;
+    height: 4px;
+    accent-color: var(--canva-purple);
+    cursor: pointer;
+    vertical-align: middle;
+    margin: 0 0.2rem;
+}
+
+.zoom-value-text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    min-width: 44px;
+    text-align: center;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.zoom-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border-color);
+    margin: 0 0.2rem;
+}
+
+/* SVG Icon Utilities */
+.icon-svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.icon-svg-sm {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 56px;
+    right: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--canva-purple);
+    color: var(--text-primary);
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    z-index: 200;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    backdrop-filter: blur(12px);
+}
+
+.toast.hidden {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    pointer-events: none;
+}
+
+/* ------------------------------------------
+   CUSTOM CANVA-STYLED CONFIRM MODAL DIALOG
+   ------------------------------------------ */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    padding: 1.5rem;
+    transition: opacity 0.25s ease;
+}
+
+.modal-backdrop.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transform: scale(1);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-backdrop.hidden .modal-card {
+    transform: scale(0.9);
+}
+
+.modal-icon-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+}
+
+.modal-message {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+}
+
+.modal-cancel {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+}
+
+.modal-cancel:hover {
+    background: var(--bg-workspace);
+    border-color: var(--text-muted);
+}
+
+.modal-confirm {
+    background: var(--canva-gradient);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(125, 42, 232, 0.35);
+}
+
+.modal-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(125, 42, 232, 0.45);
+}
+
+/* ------------------------------------------
+   DIRECT PRINT STYLING
+   ------------------------------------------ */
+@media print {
+    .canva-topbar, .canva-icon-rail, .canva-drawer, .canva-bottombar, .toast, .modal-backdrop {
+        display: none !important;
+    }
+    
+    body, html, .canva-app, .canva-body, .canva-workspace, .canvas-viewport {
+        width: 100% !important;
+        height: auto !important;
+        background: #ffffff !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .canvas-wrapper {
+        transform: scale(1) !important;
+    }
+    
+    #cn {
+        box-shadow: none !important;
+        margin: 0 auto !important;
+        page-break-after: always;
+    }
+}
+
+/* ------------------------------------------
+   FEATURE 3 & 5: PRESET TEMPLATES, DESK BACKDROPS, & PEN PROP
+   ------------------------------------------ */
+
+/* Preset Templates Grid */
+.preset-templates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+}
+
+.preset-card {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.65rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+}
+
+.preset-card:hover {
+    border-color: var(--canva-purple);
+    background: rgba(125, 42, 232, 0.12);
+    transform: translateY(-1px);
+}
+
+.preset-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.preset-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Desk Backdrop Selector */
+.desk-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+}
+
+.desk-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.3rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.desk-opt:hover {
+    border-color: var(--canva-purple);
+    color: var(--text-primary);
+}
+
+.desk-opt.active {
+    border-color: var(--canva-purple);
+    background: rgba(125, 42, 232, 0.15);
+    color: var(--canva-purple);
+}
+
+.d-preview {
+    width: 28px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.d-grid {
+    background: radial-gradient(rgba(255, 255, 255, 0.3) 1.2px, #0b0e14 1.2px);
+    background-size: 6px 6px;
+}
+
+.d-wood {
+    background: linear-gradient(135deg, #5c3a21 0%, #3d2312 100%);
+}
+
+.d-studio {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+/* Studio Desk Background Overrides */
+.canvas-viewport.backdrop-wood {
+    background-color: #2c1a0e;
+    background-image: 
+        radial-gradient(rgba(0, 0, 0, 0.25) 1px, transparent 1px),
+        linear-gradient(135deg, rgba(74, 46, 27, 0.95) 0%, rgba(38, 22, 12, 0.98) 100%),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 2px, transparent 2px, transparent 14px);
+}
+
+.canvas-viewport.backdrop-studio {
+    background-color: #0f172a;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+}
+
+/* Desk Pen Prop Overlay */
+.canvas-wrapper {
+    position: relative;
+}
+
+.desk-pen-prop {
+    position: absolute;
+    right: -75px;
+    top: 120px;
+    width: 22px;
+    height: 380px;
+    pointer-events: none;
+    display: none;
+    transform: rotate(8deg);
+    filter: drop-shadow(6px 12px 14px rgba(0, 0, 0, 0.5));
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.canvas-viewport.backdrop-wood .desk-pen-prop,
+.canvas-viewport.backdrop-studio .desk-pen-prop {
+    display: block;
+}
+
+.pen-body {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #1e293b 0%, #334155 40%, #0f172a 100%);
+    border-radius: 12px 12px 3px 3px;
+    position: relative;
+}
+
+.pen-cap {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 110px;
+    background: linear-gradient(to right, #7d2ae8 0%, #9333ea 50%, #6b21a8 100%);
+    border-radius: 10px 10px 0 0;
+    box-shadow: inset 0 -2px 5px rgba(0,0,0,0.3);
+}
+
+.pen-clip {
+    position: absolute;
+    top: 15px;
+    left: 4px;
+    width: 5px;
+    height: 75px;
+    background: linear-gradient(to right, #e2e8f0, #94a3b8);
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+}
+
+.pen-grip {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    height: 70px;
+    background: repeating-linear-gradient(0deg, #1e293b, #1e293b 3px, #0f172a 4px, #0f172a 7px);
+}
+
+.pen-tip {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 20px solid #cbd5e1;
+}
+
+/* Enhanced Scanner Shader Layer Overlays */
+#cn.scan-shadow .scan-overlay {
+    opacity: 1;
+    background: radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.4) 0%, rgba(0, 0, 0, 0.28) 80%);
+}
+
+#cn.scan-clean {
+    filter: contrast(140%) brightness(108%) saturate(75%);
+}
+
+#cn.scan-warm .scan-overlay {
+    opacity: 1;
+    background: radial-gradient(circle at 50% 30%, rgba(255, 243, 205, 0.35) 0%, rgba(180, 130, 60, 0.15) 100%);
+}
+
+#cn.scan-photocopy {
+    filter: grayscale(100%) contrast(230%) brightness(85%);
+}
+
