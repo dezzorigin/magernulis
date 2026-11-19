@@ -1547,3 +1547,250 @@ textarea {
     flex-shrink: 0;
     vertical-align: -2px;
 }
+
+/* ==========================================
+   Canva alignment (20 Nov 2026) — top bar gradien,
+   tombol Bagikan pill putih, panel Bagikan kanan,
+   tombol ungu, pill tambah halaman, undo/redo.
+   Rujukan: ~/workspace/canva-editor-recon.md
+   ========================================== */
+
+/* Top bar gradien ala Canva (teal -> biru -> ungu), berlaku di kedua tema. */
+.canva-topbar {
+    background: linear-gradient(90deg, #00c4cc 0%, #0093ff 48%, #7d2ae8 100%);
+    border-bottom: none;
+    color: #ffffff;
+}
+.canva-topbar .brand-title { color: #ffffff; }
+.canva-topbar .topbar-divider { background: rgba(255, 255, 255, 0.35); }
+.canva-topbar .doc-title-input {
+    background: transparent;
+    color: #ffffff;
+    border-color: transparent;
+}
+.canva-topbar .doc-title-input::placeholder { color: rgba(255, 255, 255, 0.7); }
+.canva-topbar .doc-title-input:hover,
+.canva-topbar .doc-title-input:focus {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #ffffff;
+}
+.canva-topbar .edit-icon { color: rgba(255, 255, 255, 0.85); }
+.canva-topbar .save-status-badge {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+.canva-topbar .topbar-action-btn { color: rgba(255, 255, 255, 0.92); }
+.canva-topbar .topbar-action-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border-color: transparent;
+}
+.canva-topbar .theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: transparent;
+    color: #ffffff;
+}
+.canva-topbar .theme-toggle-btn:hover { border-color: rgba(255, 255, 255, 0.5); }
+
+/* Undo / Redo ala Canva (di topbar, sesudah judul dokumen). */
+.undo-redo-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.undo-redo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.undo-redo-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); }
+.undo-redo-btn:disabled {
+    opacity: 0.38;
+    cursor: default;
+}
+
+/* Tombol Bagikan: pill putih ala Canva (bukan tombol biru). */
+.btn-canva-share {
+    background: #ffffff;
+    color: #1a1a2e;
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.btn-canva-share:hover {
+    background: #f1f1f4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+
+/* Tombol aksi utama ungu ala Canva. */
+.btn-canva-purple {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    background: #7d2ae8;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(125, 42, 232, 0.4);
+    transition: background 0.15s ease;
+}
+.btn-canva-purple:hover { background: #6a1fd0; }
+
+/* Panel Bagikan (kanan, pengganti dropdown ekspor). */
+.share-panel {
+    position: fixed;
+    top: 52px;
+    right: 0;
+    bottom: 0;
+    width: 360px;
+    max-width: 92vw;
+    background: var(--bg-drawer);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.28);
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+.share-panel.hidden { display: none; }
+.share-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.1rem 0.25rem;
+}
+.share-panel-head h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.share-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+.share-close-btn:hover {
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+.share-panel-body {
+    padding: 0.5rem 1.1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+.share-panel-body .field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+.share-preset {
+    display: flex;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 3px;
+}
+.share-preset button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 0.45rem 0.5rem;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+.share-preset button.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+.share-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+.share-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+.share-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.6rem 0.5rem;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+}
+.share-action-btn:hover { border-color: var(--pulpen); }
+.share-divider {
+    height: 1px;
+    background: var(--border-color);
+}
+
+/* Viewport jadi kolom supaya pill tambah halaman duduk di bawah kertas. */
+.canvas-viewport {
+    flex-direction: column;
+    align-items: center;
+}
+.add-page-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 1.5rem auto 2.5rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    flex-shrink: 0;
+    transition: border-color 0.15s ease;
+}
+.add-page-pill:hover { border-color: var(--pulpen); }
+
+/* Topbar Canva: label satu baris (jangan wrap dua baris di pill). */
+.canva-topbar .save-status-badge { white-space: nowrap; }
+.canva-topbar .topbar-action-btn span { white-space: nowrap; }
+.canva-topbar .theme-toggle-btn { white-space: nowrap; }

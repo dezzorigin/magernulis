@@ -23,8 +23,8 @@ test.describe('landing', () => {
     await expect(page.locator('footer')).toContainText('MIT');
   });
 
-  test('spesimen menampilkan 17 font tulisan tangan', async ({ page }) => {
-    await expect(page.locator('.specimen-row')).toHaveCount(17);
+  test('spesimen menampilkan 9 font tulisan tangan', async ({ page }) => {
+    await expect(page.locator('.specimen-row')).toHaveCount(9);
   });
 
   test('CTA hero menuju studio', async ({ page }) => {
@@ -87,15 +87,30 @@ test.describe('studio', () => {
     expect(errors).toEqual([]);
   });
 
-  test('menu ekspor terbuka; tombol ZIP dan Cetak terdefinisi', async ({ page }) => {
+  test('panel Bagikan terbuka; pilih PDF lalu Unduh memproses', async ({ page }) => {
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
-    await page.locator('.dropdown-toggle').click();
-    await expect(page.locator('#export-menu')).toBeVisible();
-    // Klik ZIP: memproses (html2canvas/CDN) lalu toast; yang diassert
-    // tidak ada ReferenceError + toast muncul.
-    await page.locator('.dropdown-item', { hasText: 'Unduh Paket ZIP' }).click();
+    await page.locator('.btn-canva-share', { hasText: 'Bagikan' }).click();
+    await expect(page.locator('#share-panel')).toBeVisible();
+    await expect(page.locator('#share-file-type')).toHaveValue('pdf');
+    await expect(page.locator('#share-download-label')).toHaveText('Unduh PDF (Semua Halaman)');
+    await page.locator('.btn-canva-purple').click();
     await expect(page.locator('#toast')).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+
+  test('undo/redo mengembalikan isi catatan', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await expect(page.locator('#btn-undo')).toBeDisabled();
+    await page.locator('#note-input').fill('Catatan uji undo end-to-end.');
+    await page.waitForTimeout(900); // commit snapshot (debounce 600 mdtk)
+    await expect(page.locator('#btn-undo')).toBeEnabled();
+    await page.locator('#btn-undo').click();
+    await expect(page.locator('#note-input')).not.toHaveValue('Catatan uji undo end-to-end.');
+    await expect(page.locator('#btn-redo')).toBeEnabled();
+    await page.locator('#btn-redo').click();
+    await expect(page.locator('#note-input')).toHaveValue('Catatan uji undo end-to-end.');
     expect(errors).toEqual([]);
   });
 
@@ -108,5 +123,70 @@ test.describe('studio', () => {
   test('zoom slider mengubah skala kanvas', async ({ page }) => {
     await page.locator('#zoom-range').fill('50');
     await expect(page.locator('#zoom-value')).toHaveText('50%');
+  });
+});
+
+test.describe('mode nulis', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/studio/nulis.html');
+    await expect(page.locator('.nulis-paper.active')).toBeVisible();
+    await page.locator('.rail-btn[data-rail="content"]').click();
+  });
+
+  test('form JNCK dan 12 font + 4 kertas tersedia', async ({ page }) => {
+    await expect(page.locator('#nulis-date-input')).toBeVisible();
+    await expect(page.locator('#nulis-name-input')).toBeVisible();
+    await expect(page.locator('#nulis-class-input')).toBeVisible();
+    await expect(page.locator('#nulis-faculty-input')).toBeVisible();
+    await expect(page.locator('#nulis-text-input')).toBeVisible();
+    await expect(page.locator('#font-select option')).toHaveCount(12);
+    await expect(page.locator('.paper-opt')).toHaveCount(4);
+    await expect(page.locator('.nulis-paper.active')).toHaveClass(/paper-kertas1/);
+  });
+
+  test('contoh ter-render; teks panjang jadi 2 halaman', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await page.locator('.topbar-action-btn', { hasText: 'Contoh' }).click();
+    await expect(page.locator('.nulis-paper.active .nulis-line').first()).toContainText('November 2026');
+    // Teks contoh (~380 kata) jadi 2 halaman dengan font Gloria; tapi
+    // lebar font fallback (kalau Google Fonts tak terjangkau) berbeda,
+    // jadi assert halaman-ganda memakai teks yang sengaja panjang:
+    // ~600 kata pasti >26 baris di font tersempit sekalipun.
+    const longText = ('Gotong royong membuat pekerjaan berat terasa ringan. ').repeat(60);
+    await page.locator('#nulis-text-input').fill(longText);
+    await expect(page.locator('#page-count-badge')).toHaveText('2');
+    await expect(page.locator('#preview-page-pills .page-pill')).toHaveCount(2);
+    expect(errors).toEqual([]);
+  });
+
+  test('ganti kertas HVS dan font Caveat mengubah kelas kanvas', async ({ page }) => {
+    await page.locator('.rail-btn[data-rail="style"]').click();
+    await page.locator('.paper-opt[data-paper="hvs"]').click();
+    await expect(page.locator('.nulis-paper.active')).toHaveClass(/paper-hvs/);
+    await page.locator('.rail-btn[data-rail="typography"]').click();
+    await page.locator('#font-select').selectOption({ label: 'Caveat' });
+    await expect(page.locator('.nulis-paper.active .nulis-line').first()).toHaveCSS('font-family', /Caveat/);
+  });
+
+  test('tautan Mode Cornell dan sebaliknya hidup', async ({ page }) => {
+    await page.locator('.topbar-action-btn[href="./index.html"]').click();
+    await expect(page).toHaveURL(/\/studio\/(index\.html)?$/);
+    await expect(page.locator('#cn')).toBeVisible();
+    await page.locator('.topbar-action-btn[href="./nulis.html"]').click();
+    await expect(page).toHaveURL(/nulis\.html/);
+    await expect(page.locator('.nulis-paper.active')).toBeVisible();
+  });
+
+  test('panel Bagikan terbuka di mode nulis', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await page.locator('.btn-canva-share', { hasText: 'Bagikan' }).click();
+    await expect(page.locator('#share-panel')).toBeVisible();
+    await page.locator('#share-file-type').selectOption('png');
+    await expect(page.locator('#share-download-label')).toHaveText('Unduh PNG (Halaman Ini)');
+    await page.locator('.btn-canva-purple').click();
+    await expect(page.locator('#toast')).toBeVisible();
+    expect(errors).toEqual([]);
   });
 });
