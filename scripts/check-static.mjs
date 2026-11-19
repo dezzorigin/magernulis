@@ -42,12 +42,24 @@ const P0_CHECKS = [
   [/WriteOnAir/, 'sisa brand lama WriteOnAir'],
 ];
 const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu;
+// Pengecualian disengaja — UI studio plek ketiplek editor Canva,
+// perintah Nabil 20 Nov 2026 (riset canva.com, rujukan
+// ~/workspace/canva-editor-recon.md). Yang diizinkan HANYA tiga literal
+// di bawah (gradien top bar + tombol ungu "Unduh" di panel Bagikan);
+// gradient ungu/biru lain dan sisa tema Canva di mana pun tetap
+// pelanggaran P0. Jangan perlebar daftar ini tanpa perintah Nabil.
+const CANVA_ALLOWLIST = [
+  'linear-gradient(90deg, #00c4cc 0%, #0093ff 48%, #7d2ae8 100%)',
+  'btn-canva-purple',
+  'background: #7d2ae8;',
+];
 // Gate P0 hanya untuk file produk — skrip pemeriksa sendiri mengandung
 // literal pola P0 di regex-nya, jadi scripts/ dikecualikan dari gate ini
 // (tetap diperiksa secret di bawah).
 const P0_FILES = SRC_FILES.filter((f) => !f.includes('/scripts/'));
 for (const f of P0_FILES) {
-  const content = readFileSync(f, 'utf-8');
+  let content = readFileSync(f, 'utf-8');
+  for (const s of CANVA_ALLOWLIST) content = content.split(s).join('');
   const rel = f.replace(ROOT + '/', '');
   for (const [re, label] of P0_CHECKS) {
     if (re.test(content)) fail(`${rel}: pelanggaran P0 — ${label}`);

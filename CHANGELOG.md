@@ -46,6 +46,10 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   autosave "Semua perubahan disimpan", dan pill "+ Tambah halaman" di bawah
   kertas (mode Cornell). Edit teks langsung di kanvas dan library Template /
   Elemen / Unggahan Canva tidak ditiru (di luar cakupan alat catatan).
+- Gate anti-slop P0 (`scripts/check-static.mjs`) diberi pengecualian
+  disengaja yang sempit untuk penyelarasan Canva di atas (hanya gradien
+  top bar + kelas/tombol ungu "Unduh"); gradient ungu/biru lain dan sisa
+  tema Canva di mana pun tetap pelanggaran.
 
 ## [1.1.0] — 2026-11-19
 
