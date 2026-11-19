@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagram — Magernulis</title>
+<style>
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; background: #FDFCF6; color: #23272E; line-height: 1.6; max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-family: 'Newsreader', serif; font-size: 2rem; }
+  h2 { font-family: 'Newsreader', serif; font-size: 1.4rem; margin-top: 40px; }
+  p { color: #6B7280; max-width: 62ch; }
+  figure { margin: 24px 0; border: 1px solid #E3E0D3; border-radius: 10px; background: #fff; padding: 16px; overflow-x: auto; }
+  figcaption { font-size: 0.85rem; color: #6B7280; margin-top: 8px; }
+  a { color: #1D4ED8; }
+</style>
+</head>
+<body>
+<h1>Diagram Magernulis</h1>
+<p>Arsitektur dan alur data studio. Diagram digambar sebagai SVG murni
+(bukan Mermaid), mengikuti gaya diagram-design.</p>
+
+<h2>1. Arsitektur deploy</h2>
+<figure>
+<svg viewBox="0 0 880 260" width="880" height="260" role="img" aria-label="Diagram arsitektur: pengguna mengakses Cloudflare Pages, browser memuat landing dan studio, font dari Google Fonts, pustaka ekspor dari CDN">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1D4ED8"/></marker></defs>
+  <rect x="10" y="90" width="150" height="80" rx="8" fill="#FDFCF6" stroke="#23272E" stroke-width="1.5"/>
+  <text x="85" y="122" text-anchor="middle" font-size="15" font-weight="600">Pengguna</text>
+  <text x="85" y="144" text-anchor="middle" font-size="12" fill="#6B7280">browser</text>
+  <rect x="250" y="90" width="180" height="80" rx="8" fill="#fff" stroke="#23272E" stroke-width="1.5"/>
+  <text x="340" y="122" text-anchor="middle" font-size="15" font-weight="600">Cloudflare Pages</text>
+  <text x="340" y="144" text-anchor="middle" font-size="12" fill="#6B7280">magernulis.pages.dev</text>
+  <rect x="520" y="30" width="170" height="64" rx="8" fill="#fff" stroke="#1D4ED8" stroke-width="1.5"/>
+  <text x="605" y="56" text-anchor="middle" font-size="14" font-weight="600">Landing /</text>
+  <text x="605" y="76" text-anchor="middle" font-size="12" fill="#6B7280">index.html + landing.css</text>
+  <rect x="520" y="120" width="170" height="64" rx="8" fill="#fff" stroke="#1D4ED8" stroke-width="1.5"/>
+  <text x="605" y="146" text-anchor="middle" font-size="14" font-weight="600">Studio /studio/</text>
+  <text x="605" y="166" text-anchor="middle" font-size="12" fill="#6B7280">html + css + js</text>
+  <rect x="520" y="210" width="170" height="40" rx="8" fill="#FDFCF6" stroke="#6B7280" stroke-width="1.5"/>
+  <text x="605" y="235" text-anchor="middle" font-size="12" fill="#6B7280">localStorage: tema saja</text>
+  <rect x="730" y="30" width="140" height="64" rx="8" fill="#fff" stroke="#B91C1C" stroke-width="1.5"/>
+  <text x="800" y="56" text-anchor="middle" font-size="13" font-weight="600">Google Fonts</text>
+  <text x="800" y="76" text-anchor="middle" font-size="12" fill="#6B7280">17 font tangan</text>
+  <rect x="730" y="120" width="140" height="64" rx="8" fill="#fff" stroke="#B91C1C" stroke-width="1.5"/>
+  <text x="800" y="146" text-anchor="middle" font-size="13" font-weight="600">cdnjs</text>
+  <text x="800" y="166" text-anchor="middle" font-size="12" fill="#6B7280">html2canvas · jsPDF · JSZip</text>
+  <line x1="160" y1="130" x2="248" y2="130" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="430" y1="110" x2="518" y2="62" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="430" y1="140" x2="518" y2="152" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="690" y1="62" x2="728" y2="62" stroke="#B91C1C" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="690" y1="152" x2="728" y2="152" stroke="#B91C1C" stroke-width="2" marker-end="url(#arr)"/>
+</svg>
+<figcaption>Gambar 1 — Semua aset disajikan statis dari Pages; font dan
+pustaka ekspor dimuat dari CDN saat runtime; tidak ada backend.</figcaption>
+</figure>
+
+<h2>2. Alur studio: ketik → kertas → ekspor</h2>
+<figure>
+<svg viewBox="0 0 880 300" width="880" height="300" role="img" aria-label="Diagram alur: ketik di panel, humanizer merender kata, kertas Cornell tampil, ekspor ke PNG ZIP PDF cetak atau draft JSON">
+  <defs><marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1D4ED8"/></marker></defs>
+  <rect x="10" y="100" width="150" height="90" rx="8" fill="#fff" stroke="#23272E" stroke-width="1.5"/>
+  <text x="85" y="132" text-anchor="middle" font-size="14" font-weight="600">Panel isi</text>
+  <text x="85" y="152" text-anchor="middle" font-size="12" fill="#6B7280">textarea + preset</text>
+  <text x="85" y="170" text-anchor="middle" font-size="12" fill="#6B7280">+ gaya + humanizer</text>
+  <rect x="230" y="100" width="160" height="90" rx="8" fill="#fff" stroke="#1D4ED8" stroke-width="1.5"/>
+  <text x="310" y="132" text-anchor="middle" font-size="14" font-weight="600">Humanizer</text>
+  <text x="310" y="152" text-anchor="middle" font-size="12" fill="#6B7280">per kata: rotasi +</text>
+  <text x="310" y="170" text-anchor="middle" font-size="12" fill="#6B7280">offset (seed)</text>
+  <rect x="460" y="60" width="170" height="170" rx="8" fill="#fff" stroke="#23272E" stroke-width="1.5"/>
+  <line x1="492" y1="60" x2="492" y2="230" stroke="#B91C1C" stroke-width="1.5"/>
+  <text x="551" y="100" text-anchor="middle" font-size="14" font-weight="600">Kertas Cornell #cn</text>
+  <text x="551" y="122" text-anchor="middle" font-size="12" fill="#6B7280">header · pertanyaan</text>
+  <text x="551" y="140" text-anchor="middle" font-size="12" fill="#6B7280">catatan · rangkuman</text>
+  <text x="551" y="170" text-anchor="middle" font-size="12" fill="#6B7280">state: pagesData[]</text>
+  <text x="551" y="190" text-anchor="middle" font-size="12" fill="#6B7280">kertas · tinta · scan</text>
+  <rect x="700" y="60" width="170" height="42" rx="8" fill="#fff" stroke="#1D4ED8" stroke-width="1.5"/>
+  <text x="785" y="86" text-anchor="middle" font-size="13" font-weight="600">PNG halaman ini</text>
+  <rect x="700" y="112" width="170" height="42" rx="8" fill="#fff" stroke="#1D4ED8" stroke-width="1.5"/>
+  <text x="785" y="138" text-anchor="middle" font-size="13" font-weight="600">ZIP semua halaman</text>
+  <rect x="700" y="164" width="170" height="42" rx="8" fill="#fff" stroke="#1D4ED8" stroke-width="1.5"/>
+  <text x="785" y="190" text-anchor="middle" font-size="13" font-weight="600">PDF HD (jsPDF A4)</text>
+  <rect x="700" y="216" width="170" height="42" rx="8" fill="#fff" stroke="#1D4ED8" stroke-width="1.5"/>
+  <text x="785" y="242" text-anchor="middle" font-size="13" font-weight="600">Cetak · clipboard · .json</text>
+  <line x1="160" y1="145" x2="228" y2="145" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr2)"/>
+  <line x1="390" y1="145" x2="458" y2="145" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr2)"/>
+  <line x1="630" y1="81" x2="698" y2="81" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr2)"/>
+  <line x1="630" y1="133" x2="698" y2="133" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr2)"/>
+  <line x1="630" y1="185" x2="698" y2="185" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr2)"/>
+  <line x1="630" y1="228" x2="698" y2="237" stroke="#1D4ED8" stroke-width="2" marker-end="url(#arr2)"/>
+  <text x="85" y="260" text-anchor="middle" font-size="12" fill="#6B7280">render via html2canvas (scale 2)</text>
+</svg>
+<figcaption>Gambar 2 — Ketikan tersinkron real-time ke kanvas lewat
+humanizer; ekspor selalu merender ulang <code>#cn</code> dengan
+html2canvas.</figcaption>
+</figure>
+
+<p><a href="./README.md">← Kembali ke indeks dokumentasi</a></p>
+</body>
+</html>

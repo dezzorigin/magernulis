@@ -1,5 +1,5 @@
 // ==========================================
-// WriteOnAir Studio Pro - Engine Core
+// Magernulis Studio - Engine Core
 // ==========================================
 
 // State Management: Multi-Page, Organic Humanizer, & Typography State
@@ -95,7 +95,7 @@ const toggleDrawerCollapse = () => {
 };
 
 const updateDocumentTitle = (title) => {
-    documentTitle = title || "Catatan WriteOnAir";
+    documentTitle = title || "Catatan Magernulis";
 };
 
 // ------------------------------------------
@@ -383,9 +383,9 @@ const renderPagePillsAndList = () => {
         listContainer.innerHTML = pagesData.map((page, idx) => `
             <div class="page-item ${idx === activePageIndex ? 'active' : ''}" onclick="switchPage(${idx})">
                 <div class="page-item-info">
-                    <span>📄</span> ${escapeHTML(page.title || `Halaman ${idx + 1}`)} ${page.topic ? `- ${escapeHTML(page.topic.substring(0, 14))}...` : ''}
+                    <svg class="page-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ${escapeHTML(page.title || `Halaman ${idx + 1}`)} ${page.topic ? `- ${escapeHTML(page.topic.substring(0, 14))}...` : ''}
                 </div>
-                ${idx === activePageIndex ? '<span style="font-size: 0.75rem; font-weight:700; color: var(--canva-purple)">Aktif</span>' : ''}
+                ${idx === activePageIndex ? '<span style="font-size: 0.75rem; font-weight:700; color: var(--pulpen)">Aktif</span>' : ''}
             </div>
         `).join("");
     }
@@ -438,7 +438,7 @@ const toggleTheme = () => {
         }
     }
 
-    localStorage.setItem("writeonair_theme", newTheme);
+    localStorage.setItem("magernulis_theme", newTheme);
     showToast(`Mode Studio diubah ke ${newTheme.toUpperCase()}`);
 };
 
@@ -558,10 +558,10 @@ const exportProjectJSON = () => {
     }
 
     const projectData = {
-        app: "WriteOnAir",
+        app: "Magernulis",
         version: "2.0",
         createdAt: new Date().toISOString(),
-        documentTitle: documentTitle || "Catatan WriteOnAir",
+        documentTitle: documentTitle || "Catatan Magernulis",
         fontFamily: currentFontFamily,
         humanizerLevel: humanizerLevel,
         humanizerSeed: humanizerSeed,
@@ -575,9 +575,9 @@ const exportProjectJSON = () => {
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectData, null, 2));
     const downloadAnchor = document.createElement("a");
-    const sanitizeTitle = (documentTitle || "WriteOnAir").replace(/[^a-z0-9]/gi, '_');
+    const sanitizeTitle = (documentTitle || "Magernulis").replace(/[^a-z0-9]/gi, '_');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `WriteOnAir-Project-${sanitizeTitle}.json`);
+    downloadAnchor.setAttribute("download", `Magernulis-Project-${sanitizeTitle}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -741,9 +741,9 @@ const downloadPNG = () => {
     toggleExportMenu();
     showToast("Memproses PNG HD...");
 
-    const sanitizeDocTitle = (documentTitle || "WriteOnAir").replace(/[^a-z0-9]/gi, '_');
+    const sanitizeDocTitle = (documentTitle || "Magernulis").replace(/[^a-z0-9]/gi, '_');
     const sanitizePageTitle = (pagesData[activePageIndex].title || `Hal${activePageIndex + 1}`).replace(/[^a-z0-9]/gi, '_');
-    const fileName = `WriteOnAir-${sanitizeDocTitle}-${sanitizePageTitle}.png`;
+    const fileName = `Magernulis-${sanitizeDocTitle}-${sanitizePageTitle}.png`;
 
     const executeExport = () => {
         if (typeof html2canvas !== "undefined") {
@@ -773,24 +773,34 @@ const downloadPNG = () => {
     }
 };
 
-// 2. Download All Pages PNG
-const downloadAllPNG = async () => {
+// 2. Download All Pages PNG as ZIP (dipakai tombol "Unduh Paket ZIP").
+//    Sebelumnya fungsi ini bernama downloadAllPNG dan mengunduh berkas
+//    satu-satu, sementara tombol di HTML memanggil downloadAllPNGZip yang
+//    tidak ada — tombol mati. Sekarang: semua halaman dirender lalu
+//    dibungkus satu file ZIP lewat JSZip (sudah dimuat di index.html).
+const downloadAllPNGZip = async () => {
     saveCurrentFormToState();
     toggleExportMenu();
-    showToast("Memproses unduhan seluruh halaman...");
+    showToast("Memproses paket ZIP seluruh halaman...");
+
+    if (typeof html2canvas === "undefined" || typeof JSZip === "undefined") {
+        showToast("Modul ekspor belum selesai dimuat. Coba lagi sebentar.");
+        return;
+    }
 
     const prevActive = activePageIndex;
-    const sanitizeDocTitle = (documentTitle || "WriteOnAir").replace(/[^a-z0-9]/gi, '_');
+    const sanitizeDocTitle = (documentTitle || "Magernulis").replace(/[^a-z0-9]/gi, '_');
+    const zip = new JSZip();
 
-    for (let i = 0; i < pagesData.length; i++) {
-        activePageIndex = i;
-        loadPageDataIntoForm(i);
-        await new Promise(r => setTimeout(r, 200));
+    try {
+        for (let i = 0; i < pagesData.length; i++) {
+            activePageIndex = i;
+            loadPageDataIntoForm(i);
+            await new Promise(r => setTimeout(r, 200));
 
-        const sanitizePageTitle = (pagesData[i].title || `Hal${i + 1}`).replace(/[^a-z0-9]/gi, '_');
-        const fileName = `WriteOnAir-${sanitizeDocTitle}-Hal${i + 1}-${sanitizePageTitle}.png`;
+            const sanitizePageTitle = (pagesData[i].title || `Hal${i + 1}`).replace(/[^a-z0-9]/gi, '_');
+            const fileName = `Magernulis-${sanitizeDocTitle}-Hal${i + 1}-${sanitizePageTitle}.png`;
 
-        if (typeof html2canvas !== "undefined") {
             const canvas = await html2canvas(cnNode, {
                 scale: 2,
                 useCORS: true,
@@ -798,24 +808,40 @@ const downloadAllPNG = async () => {
                 backgroundColor: null,
                 logging: false
             });
-            const dataUrl = canvas.toDataURL("image/png");
-            const link = document.createElement("a");
-            link.download = fileName;
-            link.href = dataUrl;
-            link.click();
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+            if (blob) zip.file(fileName, blob);
         }
-    }
 
-    activePageIndex = prevActive;
-    loadPageDataIntoForm(prevActive);
-    showToast("Seluruh halaman berhasil diunduh!");
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(zipBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Magernulis-${sanitizeDocTitle}-semua-halaman.zip`;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        showToast(`Paket ZIP ${pagesData.length} halaman berhasil diunduh!`);
+    } catch (err) {
+        console.error("ZIP export failed:", err);
+        showToast("Gagal membuat paket ZIP.");
+    } finally {
+        activePageIndex = prevActive;
+        loadPageDataIntoForm(prevActive);
+    }
+};
+
+// 2b. Print (dipakai tombol "Cetak Dokumen" — sebelumnya tidak ada,
+//     tombol mati). CSS @media print sudah menyembunyikan UI studio.
+const printDocument = () => {
+    saveCurrentFormToState();
+    toggleExportMenu();
+    window.print();
 };
 
 // 3. Direct PDF Document Export (Single & Multi-Page)
 const exportPDF = async (allPages = false) => {
     saveCurrentFormToState();
     toggleExportMenu();
-    showToast("Membuat dokumen PDF WriteOnAir...");
+    showToast("Membuat dokumen PDF Magernulis...");
 
     if (!window.jspdf || !window.jspdf.jsPDF) {
         showToast("Modul PDF belum selesai dimuat.");
@@ -865,10 +891,10 @@ const exportPDF = async (allPages = false) => {
             doc.addImage(imgData, "PNG", 0, 0, pdfWidth, Math.min(pdfHeight, imgHeight));
         }
 
-        const sanitizeDocTitle = (documentTitle || "WriteOnAir").replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        const fileName = `WriteOnAir-${sanitizeDocTitle}.pdf`;
+        const sanitizeDocTitle = (documentTitle || "Magernulis").replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const fileName = `Magernulis-${sanitizeDocTitle}.pdf`;
         doc.save(fileName);
-        showToast("Berkas PDF WriteOnAir berhasil diunduh!");
+        showToast("Berkas PDF Magernulis berhasil diunduh!");
     } catch (err) {
         console.error("PDF generation failed:", err);
         showToast("Gagal membuat dokumen PDF.");
@@ -980,7 +1006,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bindInputSync(noteInput, noteElement, "note");
     bindInputSync(summaryInput, summaryElement, "summary");
 
-    const savedTheme = localStorage.getItem("writeonair_theme");
+    const savedTheme = localStorage.getItem("magernulis_theme") || localStorage.getItem("writeonair_theme");
     if (savedTheme) {
         document.body.setAttribute("data-theme", savedTheme);
         const themeToggleBtn = document.getElementById("theme-toggle");
@@ -998,6 +1024,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (docTitleInput) {
         documentTitle = docTitleInput.value;
+    }
+
+    // Di layar kecil, panel drawer mulai tertutup agar kertas langsung
+    // terlihat (pengguna membukanya lewat rail bila perlu).
+    if (window.matchMedia('(max-width: 720px)').matches) {
+        const drawerEl = document.getElementById('canva-drawer');
+        if (drawerEl) drawerEl.classList.add('collapsed');
     }
 
     // Default Settings: HVS Putih Polos & Gel Hitam

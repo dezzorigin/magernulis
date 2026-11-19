@@ -1,0 +1,90 @@
+name: CI
+
+# CI untuk Magernulis (repo #36 — situs statis: landing + studio, tanpa
+# dependensi produksi; pustaka ekspor dimuat dari CDN saat runtime).
+# Job: pemeriksaan statis (tautan + secret + gate anti-slop P0),
+# advisory-sweep OSV (produksi saja — di repo ini nol paket produksi),
+# Playwright e2e terhadap server lokal, dan smoke folder repo (persis yang
+# di-deploy ke Cloudflare Pages).
+# Node 24 (engines.node >= 22 dikunci di package.json mengikuti pola #29).
+# JANGAN `npx playwright install` di VM dev — hanya di CI.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Pemeriksaan statis ─────────────────────────────────────────────────
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Tautan + secret + gate P0 + sisa restructure
+        run: npm run validate
+
+  # ── Advisory sweep (OSV batch, tanpa auth) ────────────────────────────
+  # Pola repo #24–#35: 1 POST ke api.osv.dev/v1/querybatch untuk semua
+  # paket produksi. JANGAN ganti ke GitHub Advisory DB API + GITHUB_TOKEN
+  # (gagal deterministik 401 di CI orteam — token per-job bermasalah).
+  advisory-sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: OSV sweep (produksi saja, HIGH/CRITICAL = gagal)
+        run: python3 scripts/advisory-sweep.py
+
+  # ── Playwright e2e terhadap server lokal ──────────────────────────────
+  playwright-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium (hanya di CI — JANGAN di VM dev)
+        run: npx playwright install --with-deps chromium
+
+      - name: Jalankan e2e (desktop + mobile)
+        run: npx playwright test
+
+  # ── Smoke folder repo ─────────────────────────────────────────────────
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Smoke repo (persis yang di-deploy)
+        run: npm run smoke

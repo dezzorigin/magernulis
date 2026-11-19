@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magernulis — Ketik Sekali, Jadi Tulisan Tangan Cornell</title>
+    <meta name="description" content="Magernulis: ketik catatan kuliah, jadilah tulisan tangan Cornell yang rapi. Humanizer, 17 font tangan, 4 kertas, ekspor PDF, PNG, dan ZIP. Gratis, tanpa daftar, semua tersimpan di browser.">
+    <link rel="icon" type="image/svg+xml" href="./studio/assets/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Amatic+SC:wght@700&family=Architects+Daughter&family=Caveat:wght@400..700&family=Dancing+Script:wght@500;700&family=Gochi+Hand&family=Indie+Flower&family=Just+Me+Again+Down+Here&family=Kalam:wght@300;400;700&family=Loved+by+the+King&family=Marck+Script&family=Nanum+Brush+Script&family=Over+the+Rainbow&family=Patrick+Hand&family=Sacramento&family=Satisfy&family=Shadows+Into+Light&family=Waiting+for+the+Sunrise&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/landing.css">
+</head>
+<body>
+    <header class="nav">
+        <div class="nav-inner">
+            <a class="brand" href="./">
+                <img src="./studio/assets/logo.svg" alt="Logo Magernulis">
+                <span class="brand-name">Magernulis</span>
+            </a>
+            <nav class="nav-links" aria-label="Navigasi utama">
+                <a href="#fitur">Fitur</a>
+                <a href="#font">Font tulisan</a>
+                <a href="#cara-pakai">Cara pakai</a>
+                <a href="#faq">FAQ</a>
+            </nav>
+            <div class="nav-right">
+                <a class="github-link" href="https://github.com/dezzorigin/magernulis" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                    <span>GitHub</span>
+                </a>
+                <a class="btn btn-primary btn-sm" href="./studio/">Buka Studio</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero editorial: kiri teks, kanan kartu kertas Cornell -->
+        <section class="hero">
+            <div class="wrap hero-inner">
+                <div>
+                    <p class="eyebrow">Studio catatan tangan Cornell</p>
+                    <h1>Ketik sekali, jadi tulisan tangan yang rapi.</h1>
+                    <p class="hero-sub">Magernulis mengubah ketikanmu menjadi catatan Cornell
+                        bertulisan tangan — lengkap dengan pertanyaan, rangkuman, dan
+                        <mark>ketidaksempurnaan manusiawi</mark> yang membuatnya terlihat
+                        benar-benar ditulis, bukan dicetak.</p>
+                    <div class="hero-cta">
+                        <a class="btn btn-primary" href="./studio/">Buka Studio</a>
+                        <a class="btn btn-secondary" href="#cara-pakai">Lihat cara pakai</a>
+                    </div>
+                    <p class="hero-note">Gratis, tanpa daftar. Semua catatan tersimpan di browser kamu.</p>
+                </div>
+                <div class="paper-card" role="img" aria-label="Contoh kartu catatan Cornell bertulisan tangan: topik Algoritma dan Pemrograman">
+                    <span class="binder-holes" aria-hidden="true"><i></i><i></i><i></i></span>
+                    <span class="paper-tag">contoh</span>
+                    <div class="paper-head">
+                        <div class="paper-topic">
+                            <span class="paper-label">Topik</span>
+                            <p class="paper-hand">Algoritma &amp; Pemrograman</p>
+                        </div>
+                        <div class="paper-meta">
+                            <div><span class="paper-label">Nama</span><span class="paper-hand small">Ahmad Nur Fadhil</span></div>
+                            <div><span class="paper-label">NIM</span><span class="paper-hand small">22041110015</span></div>
+                            <div><span class="paper-label">Tanggal</span><span class="paper-hand small">Rabu, 16 Sep 2026</span></div>
+                        </div>
+                    </div>
+                    <div class="paper-main">
+                        <div class="paper-body">
+                            <div class="paper-cues">
+                                <span class="paper-label">Pertanyaan</span>
+                                <p class="paper-hand small">1. Apa itu Algoritma?<br>2. Ciri utama Knuth<br>3. Kompleksitas O(N)</p>
+                            </div>
+                            <div class="paper-notes">
+                                <span class="paper-label">Catatan</span>
+                                <p class="paper-hand small">Algoritma adalah urutan langkah logis yang terstruktur untuk memecahkan masalah.</p>
+                            </div>
+                        </div>
+                        <div class="paper-foot">
+                            <span class="paper-label">Rangkuman</span>
+                            <p class="paper-hand small">Algoritma merupakan dasar pemrograman. Kuncinya: efisiensi waktu dan memori.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strip catatan pembuat, pengganti deretan statistik -->
+        <section class="note-strip">
+            <div class="wrap">
+                <div class="note-card">
+                    <p>Magernulis dibuat karena satu alasan sederhana: malas menulis ulang
+                        catatan kuliah dengan tangan, tapi tetap ingin catatan yang enak
+                        dibaca dan terlihat dikerjakan sungguhan. Jadi ketik saja — biar
+                        Magernulis yang memegang pulpennya.</p>
+                    <span class="note-sign">— Nabil, pembuat Magernulis</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fitur: baris bergantian -->
+        <section class="block" id="fitur">
+            <div class="wrap">
+                <p class="section-kicker">Fitur</p>
+                <h2>Semua yang perlu ada di selembar catatan.</h2>
+                <p class="section-sub">Bukan aplikasi catatan serba-bisa. Magernulis mengerjakan satu
+                    hal — catatan Cornell bertulisan tangan — sampai tuntas.</p>
+
+                <div class="feature-row">
+                    <div>
+                        <h3>Ketik di panel, kertas terisi sendiri</h3>
+                        <p>Topik, nama, NIM, tanggal, pertanyaan, catatan, dan rangkuman
+                            diketik di panel kiri. Kertas Cornell di kanvas langsung terisi
+                            dengan font tulisan tangan, baris demi baris, tanpa perlu
+                            mengatur apa pun.</p>
+                        <p>Empat template siap pakai — Algoritma, Matematika, Sejarah, dan
+                            Resume Buku — tinggal klik, lalu edit isinya.</p>
+                    </div>
+                    <div class="feature-visual" aria-hidden="true">
+                        <div class="mini-line ink"></div>
+                        <div class="mini-line mid"></div>
+                        <div class="mini-line short"></div>
+                        <p class="mini-hand">Algoritma adalah urutan <span class="hl">langkah logis</span>…</p>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-visual" aria-hidden="true">
+                        <p class="mini-hand">Gacha acak tulisan humanis — tiap kata miring sedikit berbeda, seperti tangan yang lelah di baris terakhir.</p>
+                        <div class="mini-chips">
+                            <span class="mini-chip">Rapi</span>
+                            <span class="mini-chip">Halus</span>
+                            <span class="mini-chip on">Natural</span>
+                            <span class="mini-chip">Acak</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Humanizer: ketidaksempurnaan yang disengaja</h3>
+                        <p>Tulisan tangan manusia tidak pernah lurus sempurna. Humanizer
+                            mengacak sudut miring dan posisi tiap kata — empat tingkat, dari
+                            Rapi sampai Acak — dan tombol gacha mengocok ulang semuanya
+                            dalam sekali klik.</p>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div>
+                        <h3>Kertas, tinta, dan efek scan</h3>
+                        <p>Empat kertas — Folio Bergaris, Grid Binder, Vintage Cream, HVS
+                            Putih — empat tinta pulpen, lima efek camera scanner, dan tiga
+                            backdrop meja belajar. Atur sekali, berlaku untuk semua halaman.</p>
+                    </div>
+                    <div class="feature-visual" aria-hidden="true">
+                        <div class="mini-chips">
+                            <span class="mini-chip on">Folio Bergaris</span>
+                            <span class="mini-chip">Grid Binder</span>
+                            <span class="mini-chip">Vintage Cream</span>
+                            <span class="mini-chip">HVS Putih</span>
+                        </div>
+                        <div class="mini-chips">
+                            <span class="mini-chip on">Gel Hitam</span>
+                            <span class="mini-chip">Pulpen Biru</span>
+                            <span class="mini-chip">Classic Navy</span>
+                            <span class="mini-chip">Merah Catatan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-visual" aria-hidden="true">
+                        <div class="mini-chips">
+                            <span class="mini-chip on">PNG</span>
+                            <span class="mini-chip on">ZIP semua halaman</span>
+                            <span class="mini-chip on">PDF HD</span>
+                            <span class="mini-chip on">Cetak</span>
+                            <span class="mini-chip on">Draft .json</span>
+                        </div>
+                        <p class="mini-hand">Satu catatan, lima jalan keluar.</p>
+                    </div>
+                    <div>
+                        <h3>Multi-halaman, ekspor lengkap</h3>
+                        <p>Tambah lembar sebanyak yang dibutuhkan — halaman lanjutan otomatis
+                            tanpa header, seperti lampiran catatan asli. Ekspor halaman ini
+                            sebagai PNG, semua halaman sebagai ZIP, atau dokumen PDF A4.
+                            Draft bisa disimpan sebagai .json dan dibuka lagi kapan saja.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spesimen 17 font tulisan tangan -->
+        <section class="block" id="font">
+            <div class="wrap">
+                <p class="section-kicker">Spesimen font</p>
+                <h2>Tujuh belas tulisan tangan, tinggal pilih.</h2>
+                <p class="section-sub">Semua font di bawah ini tersedia di studio. Contoh kalimat
+                    dirender dengan font masing-masing — bukan gambar.</p>
+                <div class="specimen">
+                    <div class="specimen-row"><div class="specimen-name">Just Me Again Down Here<span>default studio</span></div><div class="specimen-sample" style="font-family:'Just Me Again Down Here', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Caveat</div><div class="specimen-sample" style="font-family:'Caveat', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Kalam</div><div class="specimen-sample" style="font-family:'Kalam', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Architects Daughter</div><div class="specimen-sample" style="font-family:'Architects Daughter', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Indie Flower</div><div class="specimen-sample" style="font-family:'Indie Flower', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Patrick Hand</div><div class="specimen-sample" style="font-family:'Patrick Hand', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Shadows Into Light</div><div class="specimen-sample" style="font-family:'Shadows Into Light', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Amatic SC</div><div class="specimen-sample" style="font-family:'Amatic SC', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Dancing Script</div><div class="specimen-sample" style="font-family:'Dancing Script', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Gochi Hand</div><div class="specimen-sample" style="font-family:'Gochi Hand', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Satisfy</div><div class="specimen-sample" style="font-family:'Satisfy', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Sacramento</div><div class="specimen-sample" style="font-family:'Sacramento', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Marck Script</div><div class="specimen-sample" style="font-family:'Marck Script', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Loved by the King</div><div class="specimen-sample" style="font-family:'Loved by the King', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Nanum Brush Script</div><div class="specimen-sample" style="font-family:'Nanum Brush Script', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Over the Rainbow</div><div class="specimen-sample" style="font-family:'Over the Rainbow', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                    <div class="specimen-row"><div class="specimen-name">Waiting for the Sunrise</div><div class="specimen-sample" style="font-family:'Waiting for the Sunrise', cursive">Tulisan tangan yang rapi, tanpa menulis.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cara pakai -->
+        <section class="block" id="cara-pakai">
+            <div class="wrap">
+                <p class="section-kicker">Cara pakai</p>
+                <h2>Tiga langkah, satu lembar selesai.</h2>
+                <ol class="steps">
+                    <li>
+                        <h3>Isi teks catatan</h3>
+                        <p>Buka studio, ketik topik, pertanyaan, catatan, dan rangkuman —
+                            atau klik salah satu template preset dan Contoh untuk mengisi
+                            semuanya sekaligus.</p>
+                    </li>
+                    <li>
+                        <h3>Atur gaya tulisan</h3>
+                        <p>Pilih font tangan, kertas, tinta, dan efek scan. Putar gacha
+                            humanizer sampai kemiringannya terasa seperti tulisanmu sendiri.
+                            Tambah halaman bila materinya panjang.</p>
+                    </li>
+                    <li>
+                        <h3>Ekspor dan serahkan</h3>
+                        <p>Unduh sebagai PNG atau PDF HD lewat menu Bagikan / Unduh, atau
+                            cetak langsung. Draft .json menyimpan pekerjaanmu untuk dibuka
+                            lagi nanti.</p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="block" id="faq">
+            <div class="wrap">
+                <p class="section-kicker">FAQ</p>
+                <h2>Yang sering ditanyakan.</h2>
+                <div class="faq-item">
+                    <h3>Apakah catatan saya dikirim ke server?</h3>
+                    <p>Tidak. Magernulis berjalan sepenuhnya di browser — ketikan, tema,
+                        dan draft hanya tersimpan lokal di perangkatmu. Tidak ada akun,
+                        tidak ada unggahan.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Apakah bisa dipakai tanpa internet?</h3>
+                    <p>Sebagian. Aplikasi dan font yang sudah termuat tetap jalan, tapi
+                        font tulisan tangan dari Google Fonts dan pustaka ekspor
+                        (html2canvas, jsPDF, JSZip) dimuat dari CDN saat pertama dibuka.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Apakah Magernulis gratis?</h3>
+                    <p>Ya. Seluruh kode berlisensi MIT — pakai, ubah, dan sebarkan bebas.
+                        Repositori ada di GitHub.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA akhir -->
+        <section class="closing">
+            <div class="wrap">
+                <h2>Catatan berikutnya, biar Magernulis yang menulis.</h2>
+                <p class="section-sub">Buka studio dan ketik topik pertamamu.</p>
+                <a class="btn btn-primary" href="./studio/">Buka Studio</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="wrap footer-inner">
+            <span>Magernulis — MIT © 2026 Nabil Aulia Dika</span>
+            <span class="spacer"></span>
+            <a href="https://github.com/dezzorigin/magernulis" target="_blank" rel="noopener">GitHub</a>
+            <a href="./docs/">Dokumentasi</a>
+            <a href="./studio/">Studio</a>
+        </div>
+    </footer>
+</body>
+</html>
