@@ -131,6 +131,15 @@ test.describe('studio', () => {
     await expect(page.locator('#cn')).toBeVisible();
     const vp = page.viewportSize();
     const box = await page.locator('#cn').boundingBox();
+    const diag = await page.evaluate(() => {
+      const vpEl = document.getElementById('viewport');
+      return { ih: window.innerHeight, iw: window.innerWidth, zoom: document.getElementById('zoom-value')?.textContent,
+        vpClientW: vpEl?.clientWidth, vpClientH: vpEl?.clientHeight,
+        topH: document.querySelector('.canva-topbar')?.offsetHeight,
+        botH: document.querySelector('.canva-bottombar')?.offsetHeight,
+        appH: document.querySelector('.canva-app')?.offsetHeight };
+    });
+    console.log('FIT-DIAG', JSON.stringify({ ...diag, boxBottom: box.y + box.height }));
     // Header kertas terlihat penuh (tidak kepotong di atas) dan bawah kertas
     // tidak melewati bottom bar — regresi laporan Nabil 20 Nov 2026.
     expect(box.y).toBeGreaterThanOrEqual(50);
@@ -242,6 +251,15 @@ test.describe('mode nulis', () => {
     await expect(page.locator('.nulis-paper.active')).toBeVisible();
     const vp = page.viewportSize();
     const box = await page.locator('.nulis-paper.active').boundingBox();
+    const diag = await page.evaluate(() => {
+      const vpEl = document.getElementById('viewport');
+      return { ih: window.innerHeight, iw: window.innerWidth, zoom: document.getElementById('zoom-value')?.textContent,
+        vpClientW: vpEl?.clientWidth, vpClientH: vpEl?.clientHeight,
+        topH: document.querySelector('.canva-topbar')?.offsetHeight,
+        botH: document.querySelector('.canva-bottombar')?.offsetHeight,
+        appH: document.querySelector('.canva-app')?.offsetHeight };
+    });
+    console.log('FIT-DIAG', JSON.stringify({ ...diag, boxBottom: box.y + box.height }));
     expect(box.y).toBeGreaterThanOrEqual(50);
     expect(box.y + box.height).toBeLessThanOrEqual(vp.height - 45);
     expect(box.x).toBeGreaterThanOrEqual(0);
