@@ -23,11 +23,33 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   langkah, commit di-debounce 600 mdtk): mengembalikan isi, gaya kertas,
   tinta, font, dan humanizer.
 - Ekspor JPG per halaman dari panel Bagikan (selain PNG/ZIP/PDF).
+- Edit langsung di kertas, ala Canva (kedua mode): klik teks apa pun di
+  kertas — header, pertanyaan, catatan, rangkuman (Cornell) atau baris
+  header dan paragraf isi (Nulis) — lalu ketik di tempat; Enter / klik di
+  luar / Ctrl+Enter menyimpan, Esc membatalkan. Nilai tersinkron ke panel
+  kiri, state, dan undo. Di Nulis, batas paragraf (`\n` tunggal) dijaga
+  supaya tidak hilang saat teks disusun ulang dari baris.
 
 ### Fixed
 - Ekspor PNG/ZIP/PDF dan salin gambar tidak lagi menumpukkan kata saat kertas
   sedang di-zoom: semua capture html2canvas kini jalan dalam keadaan zoom
   100% lalu zoom dikembalikan (`captureWithZoomReset` di `studio/js/index.js`).
+- Kertas kepotong saat dibuka (laporan Nabil 20 Nov 2026): viewport tadinya
+  flex kolom dengan `justify-content: center`, sehingga kertas yang lebih
+  tinggi dari viewport terpotong di ATAS dan potongan itu tidak bisa
+  di-scroll. Kini `justify-content: flex-start` + zoom Fit otomatis ala
+  Canva saat dibuka (seluruh kertas terlihat; tombol Fit benar-benar fit,
+  bukan reset 100%; zoom manual menonaktifkan auto-fit sampai Fit ditekan
+  lagi; refit saat resize). Kotak layout wrapper disamakan dengan ukuran
+  visual hasil scale supaya tidak ada ruang kosong di bawah kertas.
+  Perkuatan: fit dihitung ulang setelah layout settle (frame pertama /
+  akhir render pertama / load) dan ruang vertikal diukur dari jendela
+  terlihat dikurangi tinggi topbar + bottombar — bukan dari tinggi wadah,
+  yang di headless CI bisa lebih tinggi dari layar. (`100dvh` sempat
+  dicoba lalu dicabut: di CI malah membuat wadah lebih tinggi.) Transisi
+  `transform` di `.canvas-wrapper` DICABUT: transisi membuat skala fit
+  belum sampai target saat kertas pertama terlihat (computed transform
+  masih 1.0 lalu merangkak ke 0.82) sehingga kertas terukur kepotong.
 
 ### Changed
 - Pilihan font tulisan tangan dipangkas dari 17 jadi 9: semua font yang rapih
@@ -44,8 +66,9 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   PNG/JPG/PDF, preset Digital/Cetak, tombol ungu besar "Unduh", aksi ZIP /
   Cetak / Salin / PNG halaman ini) menggantikan dropdown ekspor, badge
   autosave "Semua perubahan disimpan", dan pill "+ Tambah halaman" di bawah
-  kertas (mode Cornell). Edit teks langsung di kanvas dan library Template /
-  Elemen / Unggahan Canva tidak ditiru (di luar cakupan alat catatan).
+  kertas (mode Cornell). Library Template / Elemen / Unggahan Canva tidak
+  ditiru (di luar cakupan alat catatan). Sejak perbaikan 20 Nov 2026, edit
+  teks langsung di kanvas SUDAH ada (klik teks di kertas untuk mengedit).
 - Gate anti-slop P0 (`scripts/check-static.mjs`) diberi pengecualian
   disengaja yang sempit untuk penyelarasan Canva di atas (hanya gradien
   top bar + kelas/tombol ungu "Unduh"); gradient ungu/biru lain dan sisa

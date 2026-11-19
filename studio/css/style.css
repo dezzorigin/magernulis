@@ -747,7 +747,11 @@ textarea {
 
 .canvas-wrapper {
     transform-origin: top center;
-    transition: transform 0.15s ease-out;
+    /* SENGAJA tanpa transition: transform. Transisi membuat skala fit
+       belum sampai target saat kertas pertama terlihat (computed transform
+       masih 1.0 lalu merangkak ke 0.82 selama ~150ms) — kertas terukur
+       kepotong di tes dan berkedip 100% saat dibuka. Zoom manual jadi
+       snap, bukan animasi; fit harus deterministik. */
 }
 
 /* ------------------------------------------
@@ -1766,11 +1770,31 @@ textarea {
     background: var(--border-color);
 }
 
-/* Viewport jadi kolom supaya pill tambah halaman duduk di bawah kertas. */
+/* Viewport jadi kolom supaya pill tambah halaman duduk di bawah kertas.
+   PENTING: justify-content harus flex-start — justify-content: center di
+   arah kolom membuat kertas yang lebih tinggi dari viewport terpotong di
+   ATAS dan potongan itu tidak bisa di-scroll (bug yang dilaporkan Nabil
+   20 Nov 2026: header kertas kepotong). */
 .canvas-viewport {
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
 }
+
+/* Edit langsung di kertas (ala Canva): klik teks di kertas untuk mengubahnya.
+   .can-edit menandai blok yang bisa diklik; editornya .cn-edit-input /
+   .cn-edit-area. Placeholder kosong hanya muncul saat hover supaya tidak
+   ikut terekam saat ekspor. */
+.can-edit { cursor: text; }
+.can-edit:hover { outline: 1px dashed rgba(0, 147, 255, 0.7); outline-offset: 3px; }
+.can-edit:empty:hover::before { content: "Klik untuk menulis\2026"; opacity: 0.35; }
+.cn-edit-input, .cn-edit-area {
+    font: inherit; color: inherit; background: transparent;
+    border: none; outline: 2px solid #0093ff; outline-offset: 1px;
+    border-radius: 2px; width: 100%; padding: 0; margin: 0;
+    box-sizing: border-box; display: block;
+}
+.cn-edit-area { resize: none; overflow: hidden; }
 .add-page-pill {
     display: flex;
     align-items: center;

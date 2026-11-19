@@ -35,6 +35,9 @@ const HEADER_LINES = 4; // tanggal, nama, kelas, fakultas (halaman 1 saja)
 let nulisPages = []; // [{ header: bool, lines: string[][] }] — lines = array kata per baris
 let activePageIndex = 0;
 let currentZoom = 1.0;
+// true begitu pengguna mengubah zoom sendiri (slider/+/- /100%); auto-fit
+// hanya jalan saat dibuka, saat tombol Fit ditekan, dan saat resize.
+let zoomManual = false;
 let renderToken = 0; // batalkan render usang saat ketikan cepat
 
 // ---------- DOM ----------
@@ -223,7 +226,13 @@ const toggleFullscreen = () => {
 // ---------- Zoom (dengan capture aman — lihat captureWithZoomReset) ----------
 const applyZoom = () => {
     if (canvasWrapper) {
-        canvasWrapper.style.transform = `scale(${currentZoom.toFixed(2)})`;
+        const z = currentZoom;
+        canvasWrapper.style.transform = `scale(${z.toFixed(2)})`;
+        // Samakan kotak layout wrapper dengan ukuran visual hasil scale.
+        const bw = canvasWrapper.scrollWidth || 650;
+        const bh = canvasWrapper.scrollHeight || 920;
+        canvasWrapper.style.width = `${Math.round(bw * z)}px`;
+        canvasWrapper.style.height = `${Math.round(bh * z)}px`;
     }
     const zoomDisplay = document.getElementById('zoom-value');
     if (zoomDisplay) zoomDisplay.textContent = `${Math.round(currentZoom * 100)}%`;
@@ -232,18 +241,41 @@ const applyZoom = () => {
 };
 
 const adjustZoom = (delta) => {
+    zoomManual = true;
     currentZoom = Math.min(Math.max(0.3, currentZoom + delta), 1.5);
     applyZoom();
 };
 
 const setZoomFromSlider = (value) => {
+    zoomManual = true;
     currentZoom = parseFloat(value) / 100;
     applyZoom();
 };
 
 const resetZoom = () => {
+    zoomManual = true;
     currentZoom = 1.0;
     applyZoom();
+};
+
+// Zoom "Fit" ala Canva: seluruh kertas terlihat di viewport saat dibuka.
+// Tidak pernah melebihi 100% (kalau kertas sudah muat, fit = 100%).
+const fitZoom = () => {
+    const vp = document.getElementById('viewport');
+    if (!vp || !canvasWrapper) { currentZoom = 1; applyZoom(); return; }
+    const cs = getComputedStyle(vp);
+    // Ruang vertikal dihitung dari jendela TERLIHAT, bukan tinggi wadah:
+    // wadah bisa lebih tinggi dari layar (mis. 100dvh di headless CI),
+    // dan fit yang memakai clientHeight lalu menghitung skala kebesaran.
+    const topH = document.querySelector('.canva-topbar')?.offsetHeight ?? 52;
+    const botH = document.querySelector('.canva-bottombar')?.offsetHeight ?? 48;
+    const availW = Math.min(vp.clientWidth, window.innerWidth) - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+    const availH = window.innerHeight - topH - botH - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+    const scale = Math.min(availW / 650, availH / 920, 1);
+    zoomManual = false;
+    currentZoom = Math.max(0.3, scale);
+    applyZoom();
+    vp.scrollTop = 0;
 };
 
 // html2canvas membaca posisi dari dokumen hidup: kalau kertas sedang di-zoom
@@ -251,6 +283,8 @@ const resetZoom = () => {
 // dalam keadaan zoom 100%, lalu zoom dikembalikan. (Bug yang sama diperbaiki di
 // mode Cornell, 20 Nov 2026.)
 const captureWithZoomReset = async (captureFn) => {
+    // Jangan sampai editor teks (textarea/input) ikut terekam di hasil ekspor.
+    finishNulisEdit(true);
     const prevZoom = currentZoom;
     if (prevZoom !== 1) {
         currentZoom = 1;
@@ -371,15 +405,19 @@ const setAutoDate = () => {
 const measureCtx = document.createElement('canvas').getContext('2d');
 
 const wrapLines = (text) => {
-    // kembalikan array baris; tiap baris = array kata (baris kosong = [])
+    // Kembalikan { lines, para }: tiap baris = array kata (baris kosong = []),
+    // para = indeks paragraf asal tiap baris (paralel dengan lines). Para
+    // dipakai edit-di-kertas supaya batas paragraf (\n tunggal) tidak hilang
+    // saat teks disusun ulang dari baris.
     measureCtx.font = `${NULIS.fontSizePx}px ${NULIS.font}`;
     const width = contentWidth();
     const spaceW = measureCtx.measureText(' ').width;
     const lines = [];
+    const para = [];
     const paragraphs = String(text || '').split('\n');
-    for (const para of paragraphs) {
-        if (para.trim() === '') { lines.push([]); continue; }
-        const words = para.split(/\s+/).filter(Boolean);
+    paragraphs.forEach((paraText, paraIdx) => {
+        if (paraText.trim() === '') { lines.push([]); para.push(paraIdx); return; }
+        const words = paraText.split(/\s+/).filter(Boolean);
         let cur = [];
         let curW = 0;
         for (const w of words) {
@@ -389,15 +427,15 @@ const wrapLines = (text) => {
                 cur.push(w);
                 curW = add;
             } else {
-                lines.push(cur);
+                lines.push(cur); para.push(paraIdx);
                 cur = [w];
                 curW = ww;
             }
         }
-        if (cur.length) lines.push(cur);
-    }
-    if (lines.length === 0) lines.push([]);
-    return lines;
+        if (cur.length) { lines.push(cur); para.push(paraIdx); }
+    });
+    if (lines.length === 0) { lines.push([]); para.push(0); }
+    return { lines, para };
 };
 
 const chunkPages = (lines) => {
@@ -413,10 +451,146 @@ const chunkPages = (lines) => {
     return pages.length ? pages : [{ header: true, lines: [[]] }];
 };
 
+// ---------- Edit langsung di kertas (ala Canva) ----------
+// Klik baris header (tanggal/nama/kelas/fakultas) -> edit nilai field itu.
+// Klik baris isi -> edit PARAGRAF tempat baris itu berada (bukan satu baris
+// hasil wrap). Batas paragraf dipertahankan lewat array nulisPara.
+let nulisLines = [];
+let nulisPara = [];
+let activeNulisEdit = null;
+let nulisFitDone = false;
+
+const nulisHeaderInputFor = (field) =>
+    field === 'date' ? dateInput
+    : field === 'name' ? nameInput
+    : field === 'classId' ? classInput : facultyInput;
+
+const linesToText = (lines, para) => {
+    // Susun ulang teks dari baris: ganti baris dalam satu paragraf dengan
+    // spasi, ganti paragraf dengan \n.
+    let out = '';
+    for (let i = 0; i < lines.length; i++) {
+        if (i > 0) out += (para[i] !== para[i - 1]) ? '\n' : ' ';
+        out += lines[i].join(' ');
+    }
+    return out;
+};
+
+const autogrowNulisArea = (area) => {
+    area.style.height = 'auto';
+    area.style.height = `${area.scrollHeight}px`;
+};
+
+const finishNulisEdit = (commit = true) => {
+    if (!activeNulisEdit) return;
+    const edit = activeNulisEdit;
+    activeNulisEdit = null;
+    if (edit.kind === 'header') {
+        const val = commit ? edit.editor.value : edit.raw;
+        NULIS[edit.field] = val;
+        const input = nulisHeaderInputFor(edit.field);
+        if (input) input.value = val;
+        renderAll();
+    } else {
+        if (!commit) { renderAll(); return; }
+        const w = wrapLines(edit.editor.value);
+        const k = w.para.length ? Math.max(...w.para) + 1 : 1;
+        const newLines = [...nulisLines.slice(0, edit.start), ...w.lines, ...nulisLines.slice(edit.end)];
+        const newPara = [
+            ...nulisPara.slice(0, edit.start),
+            ...w.para.map(p => p + edit.paraIdx),
+            ...nulisPara.slice(edit.end).map(p => p + (k - 1)),
+        ];
+        nulisLines = newLines;
+        nulisPara = newPara;
+        NULIS.text = linesToText(nulisLines, nulisPara);
+        if (textInput) textInput.value = NULIS.text;
+        renderAll();
+    }
+};
+
+const startNulisHeaderEdit = (lineEl) => {
+    const field = lineEl.dataset.nulisField;
+    const raw = NULIS[field] || '';
+    const editor = document.createElement('input');
+    editor.type = 'text';
+    editor.className = 'cn-edit-input';
+    editor.value = raw;
+    editor.setAttribute('aria-label', 'Edit ' + field + ' di kertas');
+    editor.addEventListener('blur', () => finishNulisEdit(true));
+    editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { e.stopPropagation(); finishNulisEdit(false); }
+        else if (e.key === 'Enter') { e.preventDefault(); editor.blur(); }
+    });
+    lineEl.innerHTML = '';
+    lineEl.appendChild(editor);
+    activeNulisEdit = { kind: 'header', field, editor, raw };
+    editor.focus();
+    const len = editor.value.length;
+    try { editor.setSelectionRange(len, len); } catch (e) { /* abaikan */ }
+};
+
+const startNulisBodyEdit = (lineEl) => {
+    const lineIdx = parseInt(lineEl.dataset.lineIndex, 10);
+    if (Number.isNaN(lineIdx) || !nulisLines[lineIdx]) return;
+    const paraIdx = nulisPara[lineIdx];
+    let start = lineIdx;
+    while (start > 0 && nulisPara[start - 1] === paraIdx) start--;
+    let end = lineIdx + 1;
+    while (end < nulisLines.length && nulisPara[end] === paraIdx) end++;
+    const raw = linesToText(nulisLines.slice(start, end), nulisPara.slice(start, end));
+    // Ganti baris pertama paragraf di halaman ini dengan editor; sembunyikan
+    // sisa baris paragraf itu di halaman ini selama mengedit.
+    const pageNode = lineEl.closest('.nulis-paper');
+    const pageLines = pageNode ? [...pageNode.querySelectorAll('.nulis-body .nulis-line')] : [lineEl];
+    const editor = document.createElement('textarea');
+    editor.className = 'cn-edit-area';
+    editor.value = raw;
+    editor.setAttribute('aria-label', 'Edit paragraf di kertas');
+    editor.addEventListener('blur', () => finishNulisEdit(true));
+    editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { e.stopPropagation(); finishNulisEdit(false); }
+        else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); editor.blur(); }
+    });
+    editor.addEventListener('input', () => autogrowNulisArea(editor));
+    pageLines.forEach(p => {
+        const idx = parseInt(p.dataset.lineIndex, 10);
+        if (idx >= start && idx < end) {
+            if (p === lineEl) { p.innerHTML = ''; p.appendChild(editor); }
+            else { p.style.display = 'none'; }
+        }
+    });
+    activeNulisEdit = { kind: 'body', start, end, paraIdx, editor, raw };
+    editor.focus();
+    const len = editor.value.length;
+    try { editor.setSelectionRange(len, len); } catch (e) { /* abaikan */ }
+    autogrowNulisArea(editor);
+};
+
+const initNulisPaperEdit = () => {
+    if (!pagesWrap) return;
+    // Delegasi: halaman dibangun ulang tiap renderAll, jadi listener
+    // ditempel di wadah (tidak hilang saat render ulang).
+    pagesWrap.addEventListener('click', (e) => {
+        // Klik di DALAM editor (mis. pindah kursor) bukan klik baris baru.
+        if (e.target.closest('.cn-edit-input, .cn-edit-area')) return;
+        const lineEl = e.target.closest('.nulis-line.can-edit');
+        if (!lineEl || !pagesWrap.contains(lineEl)) return;
+        if (activeNulisEdit) { finishNulisEdit(true); return; }
+        // Biarkan microtask render yang mungkin tertunda selesai dulu —
+        // kalau elemen sudah tidak menempel di DOM, abaikan klik ini.
+        requestAnimationFrame(() => {
+            if (!document.contains(lineEl) || activeNulisEdit) return;
+            if (lineEl.dataset.nulisField) startNulisHeaderEdit(lineEl);
+            else startNulisBodyEdit(lineEl);
+        });
+    });
+};
+
 // ---------- Render ----------
 const paperClasses = () => `paper-${NULIS.paper} ink-${NULIS.ink} scan-${NULIS.scan}`;
 
-const buildPageNode = (page, pageNum) => {
+const buildPageNode = (page, pageNum, lineOffset = 0) => {
     const node = document.createElement('div');
     node.className = `nulis-paper ${paperClasses()}`;
     node.dataset.page = String(pageNum);
@@ -433,15 +607,16 @@ const buildPageNode = (page, pageNum) => {
         const header = document.createElement('div');
         header.className = 'nulis-header';
         const rows = [
-            NULIS.date,
-            NULIS.name ? `Nama : ${NULIS.name}` : '',
-            NULIS.classId ? `Kelas : ${NULIS.classId}` : '',
-            NULIS.faculty ? `Fakultas : ${NULIS.faculty}` : '',
+            { field: 'date', text: NULIS.date },
+            { field: 'name', text: NULIS.name ? `Nama : ${NULIS.name}` : '' },
+            { field: 'classId', text: NULIS.classId ? `Kelas : ${NULIS.classId}` : '' },
+            { field: 'faculty', text: NULIS.faculty ? `Fakultas : ${NULIS.faculty}` : '' },
         ];
-        for (const rowText of rows) {
+        for (const row of rows) {
             const p = document.createElement('p');
-            p.className = 'nulis-line handwritten';
-            renderHumanizedText(p, rowText);
+            p.className = 'nulis-line handwritten can-edit';
+            p.dataset.nulisField = row.field;
+            renderHumanizedText(p, row.text);
             header.appendChild(p);
         }
         node.appendChild(header);
@@ -449,16 +624,17 @@ const buildPageNode = (page, pageNum) => {
 
     const body = document.createElement('div');
     body.className = 'nulis-body';
-    for (const words of page.lines) {
+    page.lines.forEach((words, j) => {
         const p = document.createElement('p');
-        p.className = 'nulis-line handwritten';
+        p.className = 'nulis-line handwritten can-edit';
+        p.dataset.lineIndex = String(lineOffset + j);
         if (words.length === 0) {
             p.innerHTML = '&nbsp;';
         } else {
             renderHumanizedText(p, words.join(' '));
         }
         body.appendChild(p);
-    }
+    });
     node.appendChild(body);
 
     const overlay = document.createElement('div');
@@ -509,16 +685,30 @@ const renderAll = async () => {
         await document.fonts.load(`${NULIS.fontSizePx}px ${NULIS.font}`);
     } catch (e) { /* font fallback tetap jalan */ }
     if (token !== renderToken) return; // render lebih baru sudah antre
-    const lines = wrapLines(NULIS.text);
-    nulisPages = chunkPages(lines);
+    const wrapped = wrapLines(NULIS.text);
+    nulisLines = wrapped.lines;
+    nulisPara = wrapped.para;
+    nulisPages = chunkPages(nulisLines);
     if (activePageIndex >= nulisPages.length) activePageIndex = nulisPages.length - 1;
     if (pagesWrap) {
         pagesWrap.innerHTML = '';
+        let lineOffset = 0;
         nulisPages.forEach((page, i) => {
-            pagesWrap.appendChild(buildPageNode(page, i + 1));
+            pagesWrap.appendChild(buildPageNode(page, i + 1, lineOffset));
+            lineOffset += page.lines.length;
         });
     }
     showPage(activePageIndex);
+    // Kotak layout wrapper harus diukur ulang: jumlah halaman bisa berubah.
+    // Fit pertama kali DI SINI (bukan hanya saat init): halaman baru terbentuk
+    // dan layout sudah settle — menutup balapan fit-saat-load (di CI, kertas
+    // sempat terukur 100% karena fit dihitung sebelum layout final).
+    if (!nulisFitDone) {
+        nulisFitDone = true;
+        if (!zoomManual) fitZoom(); else applyZoom();
+    } else {
+        applyZoom();
+    }
     saveLocal();
     scheduleUndoCommit();
 };
@@ -986,7 +1176,14 @@ initTheme();
 bindInputs();
 const restored = restoreLocal();
 if (!restored) syncControlsFromState();
-applyZoom();
+initNulisPaperEdit();
+fitZoom();
+window.addEventListener('load', () => { if (!zoomManual) fitZoom(); });
 renderAll();
 lastCommittedState = snapshotState();
 updateUndoButtons();
+let nulisResizeTimer = null;
+window.addEventListener('resize', () => {
+    clearTimeout(nulisResizeTimer);
+    nulisResizeTimer = setTimeout(() => { if (!zoomManual) fitZoom(); }, 150);
+});

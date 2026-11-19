@@ -38,6 +38,10 @@ daftar, semua tersimpan di browser.
 - **Ekspor lengkap** — lewat panel **Bagikan** (kanan atas, ala Canva):
   PNG/JPG halaman ini, ZIP semua halaman, PDF HD (satu / semua halaman),
   cetak langsung, salin gambar ke clipboard; preset Digital / Cetak.
+- **Edit langsung di kertas** — klik teks apa pun di kertas untuk
+  mengeditnya di tempat (ala Canva), sinkron otomatis ke panel kiri.
+- **Zoom Fit otomatis** — kertas langsung terlihat utuh saat dibuka;
+  tombol **Fit** benar-benar fit ke layar (bukan reset 100%).
 - **Undo/Redo** di topbar; autosave "Semua perubahan disimpan".
 - **Draft .json** — simpan pekerjaan dan buka lagi kapan saja; contoh
   catatan dan 4 template preset siap pakai.

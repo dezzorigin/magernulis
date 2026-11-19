@@ -19,6 +19,9 @@ let pagesData = [
 
 let activePageIndex = 0;
 let currentZoom = 1.0;
+// true begitu pengguna mengubah zoom sendiri (slider/+/- /100%); auto-fit
+// hanya jalan saat dibuka, saat tombol Fit ditekan, dan saat resize.
+let zoomManual = false;
 let humanizerLevel = 2; // 0: Clean, 1: Subtle, 2: Natural, 3: Wild Random
 let humanizerSeed = 42;
 let currentFontFamily = "'Just Me Again Down Here', cursive";
@@ -208,6 +211,84 @@ const bindInputSync = (inputEl, targetEl, dataKey) => {
         }
         scheduleUndoCommit();
     });
+};
+
+// ------------------------------------------
+// Edit langsung di kertas (ala Canva)
+// ------------------------------------------
+// Klik teks di kertas -> teks jadi bisa diedit di tempat; Enter (field
+// satu baris) / klik di luar / Ctrl+Enter (field multi-baris) menyimpan,
+// Esc membatalkan. Nilai disinkronkan ke panel kiri + state + undo, persis
+// seperti mengetik di panel.
+const PAPER_EDIT_FIELDS = [
+    { el: topicElement, input: topicInput, key: "topic", multiline: true },
+    { el: nameElement, input: nameInput, key: "name", multiline: false },
+    { el: nimElement, input: nimInput, key: "nim", multiline: false },
+    { el: dateElement, input: dateInput, key: "date", multiline: false },
+    { el: questionElement, input: questionInput, key: "question", multiline: true },
+    { el: noteElement, input: noteInput, key: "note", multiline: true },
+    { el: summaryElement, input: summaryInput, key: "summary", multiline: true },
+];
+let activePaperEdit = null;
+
+const autogrowEditArea = (area) => {
+    area.style.height = "auto";
+    area.style.height = `${area.scrollHeight}px`;
+};
+
+const finishPaperEdit = (commit = true) => {
+    if (!activePaperEdit) return;
+    const { el, input, key, editor, raw } = activePaperEdit;
+    activePaperEdit = null;
+    const val = commit ? editor.value : raw;
+    if (pagesData[activePageIndex]) pagesData[activePageIndex][key] = val;
+    if (input) input.value = val;
+    renderHumanizedText(el, val);
+    if (commit && val !== raw) scheduleUndoCommit();
+};
+
+const startPaperEdit = (field) => {
+    if (activePaperEdit) {
+        if (activePaperEdit.el === field.el) return;
+        finishPaperEdit(true);
+    }
+    const page = pagesData[activePageIndex];
+    if (!page || !field.el) return;
+    const raw = page[field.key] || "";
+    const editor = document.createElement(field.multiline ? "textarea" : "input");
+    editor.className = field.multiline ? "cn-edit-area" : "cn-edit-input";
+    if (!field.multiline) editor.type = "text";
+    editor.value = raw;
+    editor.setAttribute("aria-label", "Edit teks di kertas");
+    editor.addEventListener("input", () => {
+        if (field.multiline) autogrowEditArea(editor);
+        // Sinkron langsung ke state + panel (tanpa render ulang kertas —
+        // editornya sendiri yang menampilkan teks saat ini).
+        if (pagesData[activePageIndex]) pagesData[activePageIndex][field.key] = editor.value;
+        if (field.input) field.input.value = editor.value;
+        scheduleUndoCommit();
+    });
+    editor.addEventListener("blur", () => finishPaperEdit(true));
+    editor.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") { e.stopPropagation(); finishPaperEdit(false); }
+        else if (e.key === "Enter" && !field.multiline) { e.preventDefault(); editor.blur(); }
+        else if (e.key === "Enter" && field.multiline && (e.ctrlKey || e.metaKey)) { e.preventDefault(); editor.blur(); }
+    });
+    field.el.innerHTML = "";
+    field.el.appendChild(editor);
+    activePaperEdit = { el: field.el, input: field.input, key: field.key, editor, raw };
+    editor.focus();
+    const len = editor.value.length;
+    try { editor.setSelectionRange(len, len); } catch (e) { /* abaikan */ }
+    if (field.multiline) autogrowEditArea(editor);
+};
+
+const initPaperEdit = () => {
+    for (const field of PAPER_EDIT_FIELDS) {
+        if (!field.el) continue;
+        field.el.classList.add("can-edit");
+        field.el.addEventListener("click", () => startPaperEdit(field));
+    }
 };
 
 const refreshCanvasRendering = () => {
@@ -796,23 +877,54 @@ const importProjectJSON = (event) => {
 // Canvas Zoom Scale & Slider Controls
 // ------------------------------------------
 const adjustZoom = (delta) => {
+    zoomManual = true;
     currentZoom = Math.min(Math.max(0.3, currentZoom + delta), 1.5);
     applyZoom();
 };
 
 const setZoomFromSlider = (value) => {
+    zoomManual = true;
     currentZoom = parseFloat(value) / 100;
     applyZoom();
 };
 
 const resetZoom = () => {
+    zoomManual = true;
     currentZoom = 1.0;
     applyZoom();
 };
 
+// Zoom "Fit" ala Canva: seluruh kertas terlihat di viewport saat dibuka.
+// Tidak pernah melebihi 100% (kalau kertas sudah muat, fit = 100%).
+const fitZoom = () => {
+    const vp = document.getElementById("viewport");
+    if (!vp || !canvasWrapper) { currentZoom = 1; applyZoom(); return; }
+    const cs = getComputedStyle(vp);
+    // Ruang vertikal dihitung dari jendela TERLIHAT, bukan tinggi wadah:
+    // wadah bisa lebih tinggi dari layar (mis. 100dvh di headless CI),
+    // dan fit yang memakai clientHeight lalu menghitung skala kebesaran.
+    const topH = document.querySelector(".canva-topbar")?.offsetHeight ?? 52;
+    const botH = document.querySelector(".canva-bottombar")?.offsetHeight ?? 48;
+    const availW = Math.min(vp.clientWidth, window.innerWidth) - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+    const availH = window.innerHeight - topH - botH - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+    const scale = Math.min(availW / 650, availH / 920, 1);
+    zoomManual = false;
+    currentZoom = Math.max(0.3, scale);
+    applyZoom();
+    vp.scrollTop = 0;
+};
+
 const applyZoom = () => {
     if (canvasWrapper) {
-        canvasWrapper.style.transform = `scale(${currentZoom.toFixed(2)})`;
+        const z = currentZoom;
+        canvasWrapper.style.transform = `scale(${z.toFixed(2)})`;
+        // Samakan kotak layout wrapper dengan ukuran visual hasil scale.
+        // Tanpa ini, flex column menyisakan ruang kosong setinggi kertas
+        // penuh dan pill "+ Tambah halaman" jatuh jauh di bawah kertas.
+        const bw = canvasWrapper.scrollWidth || 650;
+        const bh = canvasWrapper.scrollHeight || 920;
+        canvasWrapper.style.width = `${Math.round(bw * z)}px`;
+        canvasWrapper.style.height = `${Math.round(bh * z)}px`;
     }
     const zoomDisplay = document.getElementById("zoom-value");
     if (zoomDisplay) {
@@ -898,6 +1010,8 @@ const clearForm = async () => {
 // studio-nya normal. Karena itu setiap capture html2canvas harus jalan
 // dalam keadaan zoom 100%, lalu zoom dikembalikan seperti semula.
 const captureWithZoomReset = async (captureFn) => {
+    // Jangan sampai editor teks (textarea/input) ikut terekam di hasil ekspor.
+    finishPaperEdit(true);
     const prevZoom = currentZoom;
     if (prevZoom !== 1) {
         currentZoom = 1;
@@ -1262,4 +1376,19 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPageDataIntoForm(0);
     lastCommittedState = snapshotState();
     updateUndoButtons();
+
+    // Flow ala Canva: klik teks di kertas untuk mengedit + kertas langsung
+    // fit ke layar saat dibuka (bukan 100% yang kepotong).
+    initPaperEdit();
+    fitZoom();
+    // Fit ulang begitu layout benar-benar settle (frame pertama + load):
+    // hitungan fit saat DOMContentLoaded bisa memakai ukuran wadah yang
+    // belum final (balapan layout — terlihat di CI, kertas kembali 100%).
+    requestAnimationFrame(() => { if (!zoomManual) fitZoom(); });
+    window.addEventListener("load", () => { if (!zoomManual) fitZoom(); });
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => { if (!zoomManual) fitZoom(); }, 150);
+    });
 });
