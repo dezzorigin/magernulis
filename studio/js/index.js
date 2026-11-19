@@ -900,10 +900,13 @@ const fitZoom = () => {
     const vp = document.getElementById("viewport");
     if (!vp || !canvasWrapper) { currentZoom = 1; applyZoom(); return; }
     const cs = getComputedStyle(vp);
-    // Batasi dengan jendela terlihat: kalau wadah overflow (mis. 100vh di
-    // mobile), clientWidth/Height melebih-lebihkan ruang yang benar-benar ada.
+    // Ruang vertikal dihitung dari jendela TERLIHAT, bukan tinggi wadah:
+    // wadah bisa lebih tinggi dari layar (mis. 100dvh di headless CI),
+    // dan fit yang memakai clientHeight lalu menghitung skala kebesaran.
+    const topH = document.querySelector(".canva-topbar")?.offsetHeight ?? 52;
+    const botH = document.querySelector(".canva-bottombar")?.offsetHeight ?? 48;
     const availW = Math.min(vp.clientWidth, window.innerWidth) - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
-    const availH = Math.min(vp.clientHeight, window.innerHeight) - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+    const availH = window.innerHeight - topH - botH - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
     const scale = Math.min(availW / 650, availH / 920, 1);
     zoomManual = false;
     currentZoom = Math.max(0.3, scale);

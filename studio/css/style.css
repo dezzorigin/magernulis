@@ -74,9 +74,6 @@ body, html {
     flex-direction: column;
     width: 100vw;
     height: 100vh;
-    /* dvh = tinggi layar TERLIHAT; 100vh di mobile ikut area di balik
-       URL bar sehingga wadah lebih tinggi dari layar dan fit kebesaran. */
-    height: 100dvh;
     overflow: hidden;
 }
 
