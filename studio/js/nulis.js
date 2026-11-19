@@ -264,8 +264,10 @@ const fitZoom = () => {
     const vp = document.getElementById('viewport');
     if (!vp || !canvasWrapper) { currentZoom = 1; applyZoom(); return; }
     const cs = getComputedStyle(vp);
-    const availW = vp.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
-    const availH = vp.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+    // Batasi dengan jendela terlihat: kalau wadah overflow (mis. 100vh di
+    // mobile), clientWidth/Height melebih-lebihkan ruang yang benar-benar ada.
+    const availW = Math.min(vp.clientWidth, window.innerWidth) - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+    const availH = Math.min(vp.clientHeight, window.innerHeight) - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
     const scale = Math.min(availW / 650, availH / 920, 1);
     zoomManual = false;
     currentZoom = Math.max(0.3, scale);
@@ -453,6 +455,7 @@ const chunkPages = (lines) => {
 let nulisLines = [];
 let nulisPara = [];
 let activeNulisEdit = null;
+let nulisFitDone = false;
 
 const nulisHeaderInputFor = (field) =>
     field === 'date' ? dateInput
@@ -694,7 +697,15 @@ const renderAll = async () => {
     }
     showPage(activePageIndex);
     // Kotak layout wrapper harus diukur ulang: jumlah halaman bisa berubah.
-    applyZoom();
+    // Fit pertama kali DI SINI (bukan hanya saat init): halaman baru terbentuk
+    // dan layout sudah settle — menutup balapan fit-saat-load (di CI, kertas
+    // sempat terukur 100% karena fit dihitung sebelum layout final).
+    if (!nulisFitDone) {
+        nulisFitDone = true;
+        if (!zoomManual) fitZoom(); else applyZoom();
+    } else {
+        applyZoom();
+    }
     saveLocal();
     scheduleUndoCommit();
 };
@@ -1164,6 +1175,7 @@ const restored = restoreLocal();
 if (!restored) syncControlsFromState();
 initNulisPaperEdit();
 fitZoom();
+window.addEventListener('load', () => { if (!zoomManual) fitZoom(); });
 renderAll();
 lastCommittedState = snapshotState();
 updateUndoButtons();

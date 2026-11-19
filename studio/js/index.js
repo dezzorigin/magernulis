@@ -900,8 +900,10 @@ const fitZoom = () => {
     const vp = document.getElementById("viewport");
     if (!vp || !canvasWrapper) { currentZoom = 1; applyZoom(); return; }
     const cs = getComputedStyle(vp);
-    const availW = vp.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
-    const availH = vp.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+    // Batasi dengan jendela terlihat: kalau wadah overflow (mis. 100vh di
+    // mobile), clientWidth/Height melebih-lebihkan ruang yang benar-benar ada.
+    const availW = Math.min(vp.clientWidth, window.innerWidth) - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+    const availH = Math.min(vp.clientHeight, window.innerHeight) - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
     const scale = Math.min(availW / 650, availH / 920, 1);
     zoomManual = false;
     currentZoom = Math.max(0.3, scale);
@@ -1376,6 +1378,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // fit ke layar saat dibuka (bukan 100% yang kepotong).
     initPaperEdit();
     fitZoom();
+    // Fit ulang begitu layout benar-benar settle (frame pertama + load):
+    // hitungan fit saat DOMContentLoaded bisa memakai ukuran wadah yang
+    // belum final (balapan layout — terlihat di CI, kertas kembali 100%).
+    requestAnimationFrame(() => { if (!zoomManual) fitZoom(); });
+    window.addEventListener("load", () => { if (!zoomManual) fitZoom(); });
     let resizeTimer = null;
     window.addEventListener("resize", () => {
         clearTimeout(resizeTimer);

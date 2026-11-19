@@ -42,6 +42,10 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   bukan reset 100%; zoom manual menonaktifkan auto-fit sampai Fit ditekan
   lagi; refit saat resize). Kotak layout wrapper disamakan dengan ukuran
   visual hasil scale supaya tidak ada ruang kosong di bawah kertas.
+  Perkuatan: wadah aplikasi pakai `100dvh` (bukan `100vh` saja — di mobile
+  `100vh` ikut area di balik URL bar), fit dibatasi ukuran jendela terlihat,
+  dan fit dihitung ulang setelah layout settle (frame pertama / akhir
+  render pertama / load) supaya tidak kalah balapan saat load lambat.
 
 ### Changed
 - Pilihan font tulisan tangan dipangkas dari 17 jadi 9: semua font yang rapih
