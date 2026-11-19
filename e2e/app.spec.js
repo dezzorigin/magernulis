@@ -124,6 +124,52 @@ test.describe('studio', () => {
     await page.locator('#zoom-range').fill('50');
     await expect(page.locator('#zoom-value')).toHaveText('50%');
   });
+
+  test('kertas langsung fit dan tidak kepotong saat dibuka', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 953 });
+    await page.reload();
+    await expect(page.locator('#cn')).toBeVisible();
+    const vp = page.viewportSize();
+    const box = await page.locator('#cn').boundingBox();
+    // Header kertas terlihat penuh (tidak kepotong di atas) dan bawah kertas
+    // tidak melewati bottom bar — regresi laporan Nabil 20 Nov 2026.
+    expect(box.y).toBeGreaterThanOrEqual(50);
+    expect(box.y + box.height).toBeLessThanOrEqual(vp.height - 45);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(vp.width);
+    // Fit, bukan 100%: di 1920x953 kertas A4 tidak muat di 100%.
+    await expect(page.locator('#zoom-value')).not.toHaveText('100%');
+    // Tombol Fit mengembalikan ke fit setelah zoom manual.
+    await page.locator('#zoom-range').fill('50');
+    await expect(page.locator('#zoom-value')).toHaveText('50%');
+    await page.locator('.zoom-btn', { hasText: 'Fit' }).click();
+    await expect(page.locator('#zoom-value')).not.toHaveText('50%');
+    await expect(page.locator('#zoom-value')).not.toHaveText('100%');
+  });
+
+  test('klik teks di kertas mengedit langsung dan sinkron ke panel', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    // Di mobile drawer menutupi kertas — sembunyikan dulu (seperti pengguna asli).
+    await page.locator('#drawer-collapse-btn').click();
+    await page.locator('#question').click();
+    const area = page.locator('.cn-edit-area');
+    await expect(area).toBeVisible();
+    await expect(area).toHaveValue(/Apa itu/);
+    await area.fill('Apa itu algoritma (diubah)?');
+    await page.keyboard.press('Control+Enter');
+    await expect(page.locator('#question')).toContainText('diubah');
+    await expect(page.locator('#question-input')).toHaveValue('Apa itu algoritma (diubah)?');
+    // Field satu baris: Enter menyimpan.
+    await page.locator('#name').click();
+    const input = page.locator('.cn-edit-input');
+    await expect(input).toBeVisible();
+    await input.fill('Budi Santoso');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#name')).toContainText('Budi Santoso');
+    await expect(page.locator('#name-input')).toHaveValue('Budi Santoso');
+    expect(errors).toEqual([]);
+  });
 });
 
 test.describe('mode nulis', () => {
@@ -187,6 +233,46 @@ test.describe('mode nulis', () => {
     await expect(page.locator('#share-download-label')).toHaveText('Unduh PNG (Halaman Ini)');
     await page.locator('.btn-canva-purple').click();
     await expect(page.locator('#toast')).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+
+  test('kertas langsung fit dan tidak kepotong saat dibuka', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 953 });
+    await page.reload();
+    await expect(page.locator('.nulis-paper.active')).toBeVisible();
+    const vp = page.viewportSize();
+    const box = await page.locator('.nulis-paper.active').boundingBox();
+    expect(box.y).toBeGreaterThanOrEqual(50);
+    expect(box.y + box.height).toBeLessThanOrEqual(vp.height - 45);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(vp.width);
+    await expect(page.locator('#zoom-value')).not.toHaveText('100%');
+  });
+
+  test('klik baris isi mengedit paragraf dan sinkron ke panel', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    // Di mobile drawer menutupi kertas — sembunyikan dulu (seperti pengguna asli).
+    await page.locator('#drawer-collapse-btn').click();
+    // Batas paragraf (\n tunggal) harus utuh setelah edit di kertas.
+    await page.locator('#nulis-text-input').fill('Baris satu\nBaris dua\n\nParagraf dua.');
+    await expect(page.locator('.nulis-paper.active .nulis-body')).toContainText('Paragraf dua');
+    await page.locator('.nulis-paper.active .nulis-body .nulis-line').first().click();
+    const area = page.locator('.cn-edit-area');
+    await expect(area).toBeVisible();
+    await expect(area).toHaveValue('Baris satu');
+    await area.fill('Baris satu diubah');
+    await page.keyboard.press('Control+Enter');
+    await expect(page.locator('#nulis-text-input')).toHaveValue('Baris satu diubah\nBaris dua\n\nParagraf dua.');
+    await expect(page.locator('.nulis-paper.active .nulis-body')).toContainText('Baris satu diubah');
+    // Header: klik baris Nama, Enter menyimpan.
+    await page.locator('.nulis-paper.active .nulis-header .nulis-line[data-nulis-field="name"]').click();
+    const input = page.locator('.cn-edit-input');
+    await expect(input).toBeVisible();
+    await input.fill('Andi Pratama');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.nulis-paper.active .nulis-header')).toContainText('Nama : Andi Pratama');
+    await expect(page.locator('#nulis-name-input')).toHaveValue('Andi Pratama');
     expect(errors).toEqual([]);
   });
 });
