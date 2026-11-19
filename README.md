@@ -20,17 +20,25 @@ daftar, semua tersimpan di browser.
 
 - **Catatan Cornell lengkap** — header identitas (topik, nama, NIM, tanggal),
   kolom pertanyaan, kolom catatan, dan rangkuman di bawah.
+- **Mode Nulis (terpisah)** — tulisan tangan di atas kertas garis ala JNCK
+  Nulis: form tanggal/nama/kelas/fakultas/teks, kertas Kertas 1–3 + HVS
+  (dot grid), 12 font (4 dari JNCK + 9 Magernulis), halaman otomatis
+  mengikuti panjang teks, ekspor PNG/ZIP/PDF. Buka di
+  `studio/nulis.html`. Kertas Buku 1–8 (foto buku asli) dan 30 font JNCK
+  lainnya belum masuk — butuh foto/sumber sendiri dan cek lisensi.
 - **Humanizer** — mengacak sudut miring dan posisi tiap kata seperti tulisan
   tangan manusia; 4 tingkat (Rapi, Halus, Natural, Acak) + tombol gacha.
-- **17 font tulisan tangan** — dari Caveat sampai Patrick Hand, lengkap
-  dengan ukuran font dan jarak baris yang bisa diatur.
+- **9 font tulisan tangan** — semuanya gaya acak natural (Caveat, Gochi Hand,
+  dsb.), lengkap dengan ukuran font dan jarak baris yang bisa diatur.
 - **4 kertas, 4 tinta, 5 efek scan, 3 backdrop meja** — Folio Bergaris,
   Grid Binder, Vintage Cream, HVS Putih; efek Clean, Shadow, Warm,
   Photocopy, dan tanpa filter.
 - **Multi-halaman** — tambah/hapus lembar; halaman lanjutan otomatis tanpa
   header, seperti lampiran catatan asli.
-- **Ekspor lengkap** — PNG halaman ini, ZIP semua halaman, PDF HD (satu /
-  semua halaman), cetak langsung, salin gambar ke clipboard.
+- **Ekspor lengkap** — lewat panel **Bagikan** (kanan atas, ala Canva):
+  PNG/JPG halaman ini, ZIP semua halaman, PDF HD (satu / semua halaman),
+  cetak langsung, salin gambar ke clipboard; preset Digital / Cetak.
+- **Undo/Redo** di topbar; autosave "Semua perubahan disimpan".
 - **Draft .json** — simpan pekerjaan dan buka lagi kapan saja; contoh
   catatan dan 4 template preset siap pakai.
 - **Tema gelap/terang**, zoom 30–150%, mode layar penuh.

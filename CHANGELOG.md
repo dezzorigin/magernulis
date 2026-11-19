@@ -5,6 +5,48 @@ Semua perubahan penting proyek ini dicatat di file ini.
 Format berdasarkan [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 dan proyek ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Mode Nulis (`studio/nulis.html`, `studio/css/nulis.css`,
+  `studio/js/nulis.js`): mode terpisah dari Cornell Notes, ala JNCK Nulis —
+  form tanggal/nama/kelas/fakultas/teks, kertas garis CSS (Kertas 1–3 +
+  HVS dot grid), 12 font (Gloria Hallelujah, Shadows Into Light,
+  Coming Soon, Covered By Your Grace + 9 font Magernulis), humanizer
+  default Wild, tinta/ukuran/line-height/efek scan/backdrop, halaman
+  otomatis mengikuti panjang teks, ekspor PNG/ZIP/PDF + salin + cetak,
+  simpan lokal otomatis. Tautan dua arah Cornell ↔ Nulis di topbar
+  studio + tombol Mode Nulis di landing. Hanya 4 dari 34 font JNCK yang
+  tersedia di Google Fonts (lisensi aman); 30 sisanya butuh cek sumber
+  & lisensi. Kertas Buku 1–8 (foto buku asli) belum tersedia.
+- Undo/Redo di topbar studio (kedua mode, snapshot state penuh, maks 50
+  langkah, commit di-debounce 600 mdtk): mengembalikan isi, gaya kertas,
+  tinta, font, dan humanizer.
+- Ekspor JPG per halaman dari panel Bagikan (selain PNG/ZIP/PDF).
+
+### Fixed
+- Ekspor PNG/ZIP/PDF dan salin gambar tidak lagi menumpukkan kata saat kertas
+  sedang di-zoom: semua capture html2canvas kini jalan dalam keadaan zoom
+  100% lalu zoom dikembalikan (`captureWithZoomReset` di `studio/js/index.js`).
+
+### Changed
+- Pilihan font tulisan tangan dipangkas dari 17 jadi 9: semua font yang rapih
+  dihapus (Kalam, Architects Daughter, Patrick Hand, Amatic SC,
+  Dancing Script, Satisfy, Sacramento, Marck Script). Tersisa gaya acak
+  natural: Just Me Again Down Here, Caveat, Indie Flower, Shadows Into
+  Light, Gochi Hand, Loved by the King, Nanum Brush Script, Over the
+  Rainbow, Waiting for the Sunrise. Spesimen landing, README, dan tes e2e
+  ikut diperbarui.
+- UI studio diselaraskan dengan editor Canva (riset langsung canva.com,
+  20 Nov 2026, rujukan `~/workspace/canva-editor-recon.md`): top bar
+  gradien teal → biru → ungu dengan teks putih, tombol "Bagikan" pill putih
+  di kanan atas yang membuka panel samping kanan (pilih jenis file
+  PNG/JPG/PDF, preset Digital/Cetak, tombol ungu besar "Unduh", aksi ZIP /
+  Cetak / Salin / PNG halaman ini) menggantikan dropdown ekspor, badge
+  autosave "Semua perubahan disimpan", dan pill "+ Tambah halaman" di bawah
+  kertas (mode Cornell). Edit teks langsung di kanvas dan library Template /
+  Elemen / Unggahan Canva tidak ditiru (di luar cakupan alat catatan).
+
 ## [1.1.0] — 2026-11-19
 
 Rebuild proper (program P1 repo #36): restructure keempat.

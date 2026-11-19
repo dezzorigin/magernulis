@@ -110,18 +110,21 @@ const fontOption = (value) => {
     handwrittenElements.forEach(el => {
         el.style.fontFamily = value;
     });
+    scheduleUndoCommit();
 };
 
 const fontSizeOption = (value) => {
     if (cnNode) cnNode.style.setProperty("--canvas-font-size", value);
     const displayVal = document.getElementById("font-size-val");
     if (displayVal) displayVal.textContent = value;
+    scheduleUndoCommit();
 };
 
 const lineHeightOption = (value) => {
     if (cnNode) cnNode.style.setProperty("--canvas-line-height", value);
     const displayVal = document.getElementById("line-height-val");
     if (displayVal) displayVal.textContent = value;
+    scheduleUndoCommit();
 };
 
 // ------------------------------------------
@@ -203,6 +206,7 @@ const bindInputSync = (inputEl, targetEl, dataKey) => {
         if (pagesData[activePageIndex]) {
             pagesData[activePageIndex][dataKey] = val;
         }
+        scheduleUndoCommit();
     });
 };
 
@@ -225,6 +229,7 @@ const refreshCanvasRendering = () => {
 const randomizeHumanizer = () => {
     humanizerSeed = Math.floor(Math.random() * 100000);
     refreshCanvasRendering();
+    scheduleUndoCommit();
     showToast("Gacha Berhasil! Kemiringan & posisi kata diacak seperti tulisan tangan manusia.");
 };
 
@@ -241,6 +246,7 @@ const setHumanizerLevel = (level) => {
         label.textContent = levelNames[humanizerLevel] || "Natural";
     }
     refreshCanvasRendering();
+    scheduleUndoCommit();
 };
 
 // ------------------------------------------
@@ -253,6 +259,7 @@ const toggleHeaderVisibility = (visible) => {
     if (cnNode) {
         cnNode.classList.toggle("no-header", !visible);
     }
+    scheduleUndoCommit();
 };
 
 const updateCurrentPageTitle = (title) => {
@@ -261,6 +268,7 @@ const updateCurrentPageTitle = (title) => {
         document.getElementById("current-page-title").textContent = pagesData[activePageIndex].title;
         renderPagePillsAndList();
     }
+    scheduleUndoCommit();
 };
 
 const loadPageDataIntoForm = (index) => {
@@ -346,6 +354,7 @@ const addNewPage = () => {
     pagesData.push(newPageObj);
     activePageIndex = pagesData.length - 1;
     loadPageDataIntoForm(activePageIndex);
+    scheduleUndoCommit();
     showToast(`Lembar Kertas #${pagesData.length} (Halaman Lanjutan) ditambahkan!`);
 };
 
@@ -364,6 +373,7 @@ const deleteCurrentPage = async () => {
         pagesData.splice(activePageIndex, 1);
         activePageIndex = Math.max(0, activePageIndex - 1);
         loadPageDataIntoForm(activePageIndex);
+        scheduleUndoCommit();
         showToast("Lembar kertas berhasil dihapus.");
     }
 };
@@ -397,25 +407,167 @@ const renderPagePillsAndList = () => {
 };
 
 // ------------------------------------------
-// Export Dropdown Toggle & Outside Click
 // ------------------------------------------
-const toggleExportMenu = () => {
-    const menu = document.getElementById("export-menu");
-    const dropdown = document.getElementById("export-dropdown");
-    if (menu && dropdown) {
-        menu.classList.toggle("hidden");
-        dropdown.classList.toggle("open");
+// Panel Bagikan ala Canva (kanan) + preset skala ekspor
+// ------------------------------------------
+let shareFileType = "pdf";
+let shareScale = 2; // Digital = 2, Cetak = 3
+
+const toggleSharePanel = () => {
+    const panel = document.getElementById("share-panel");
+    if (panel) panel.classList.toggle("hidden");
+};
+
+const closeSharePanel = () => {
+    const panel = document.getElementById("share-panel");
+    if (panel) panel.classList.add("hidden");
+};
+
+const updateShareDownloadLabel = () => {
+    const label = document.getElementById("share-download-label");
+    if (!label) return;
+    const typeName = shareFileType === "pdf" ? "PDF" : shareFileType.toUpperCase();
+    const scope = shareFileType === "pdf" ? "Semua Halaman" : "Halaman Ini";
+    label.textContent = `Unduh ${typeName} (${scope})`;
+};
+
+const setShareFileType = (type) => {
+    shareFileType = type;
+    updateShareDownloadLabel();
+};
+
+const setSharePreset = (preset) => {
+    shareScale = preset === "print" ? 3 : 2;
+    document.querySelectorAll(".share-preset button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.preset === preset);
+    });
+};
+
+const shareDownload = () => {
+    if (shareFileType === "pdf") {
+        exportPDF(true);
+    } else if (shareFileType === "jpg") {
+        downloadJPG();
+    } else {
+        downloadPNG();
     }
 };
 
+// Klik di luar panel Bagikan menutupnya (tombol Bagikan dikecualikan).
 document.addEventListener("click", (e) => {
-    const dropdown = document.getElementById("export-dropdown");
-    const menu = document.getElementById("export-menu");
-    if (dropdown && menu && !dropdown.contains(e.target)) {
-        menu.classList.add("hidden");
-        dropdown.classList.remove("open");
+    const panel = document.getElementById("share-panel");
+    if (panel && !panel.classList.contains("hidden") && !panel.contains(e.target) && !e.target.closest(".btn-canva-share")) {
+        panel.classList.add("hidden");
     }
 });
+
+// ------------------------------------------
+// Undo / Redo ala Canva (snapshot state penuh,
+// commit di-debounce 600 mdtk setelah perubahan)
+// ------------------------------------------
+const UNDO_LIMIT = 50;
+let undoStack = [];
+let redoStack = [];
+let lastCommittedState = null;
+let undoCommitTimer = null;
+let restoringUndo = false;
+
+const snapshotState = () => JSON.stringify({
+    pagesData, activePageIndex, documentTitle,
+    currentFontFamily, currentPaperType, currentInkColor,
+    currentScanEffect, currentDeskBackdrop,
+    humanizerLevel, humanizerSeed,
+    fontSize: document.getElementById("font-size-range")?.value || "",
+    lineHeight: document.getElementById("line-height-range")?.value || ""
+});
+
+const updateUndoButtons = () => {
+    const u = document.getElementById("btn-undo");
+    const r = document.getElementById("btn-redo");
+    if (u) u.disabled = undoStack.length === 0;
+    if (r) r.disabled = redoStack.length === 0;
+};
+
+const commitUndoSnapshot = () => {
+    if (restoringUndo) return;
+    const current = snapshotState();
+    if (lastCommittedState === null) {
+        lastCommittedState = current;
+        return;
+    }
+    if (current !== lastCommittedState) {
+        undoStack.push(lastCommittedState);
+        if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+        redoStack.length = 0;
+        lastCommittedState = current;
+        updateUndoButtons();
+    }
+};
+
+const scheduleUndoCommit = () => {
+    if (restoringUndo) return;
+    clearTimeout(undoCommitTimer);
+    undoCommitTimer = setTimeout(commitUndoSnapshot, 600);
+};
+
+const applySnapshot = (json) => {
+    const snap = JSON.parse(json);
+    restoringUndo = true;
+    try {
+        pagesData = snap.pagesData;
+        activePageIndex = snap.activePageIndex;
+        documentTitle = snap.documentTitle;
+        currentFontFamily = snap.currentFontFamily;
+        currentPaperType = snap.currentPaperType;
+        currentInkColor = snap.currentInkColor;
+        currentScanEffect = snap.currentScanEffect;
+        currentDeskBackdrop = snap.currentDeskBackdrop;
+        humanizerLevel = snap.humanizerLevel;
+        humanizerSeed = snap.humanizerSeed;
+        if (docTitleInput) docTitleInput.value = documentTitle;
+        setPaperType(currentPaperType);
+        setInkColor(currentInkColor);
+        setScanEffect(currentScanEffect);
+        setDeskBackdrop(currentDeskBackdrop);
+        setHumanizerLevel(humanizerLevel);
+        const fsEl = document.getElementById("font-size-range");
+        if (fsEl && snap.fontSize !== "") { fsEl.value = snap.fontSize; fontSizeOption(snap.fontSize); }
+        const lhEl = document.getElementById("line-height-range");
+        if (lhEl && snap.lineHeight !== "") { lhEl.value = snap.lineHeight; lineHeightOption(snap.lineHeight); }
+        const fontSel = document.getElementById("font-select");
+        if (fontSel) fontSel.value = currentFontFamily;
+        loadPageDataIntoForm(activePageIndex);
+        renderPagePillsAndList();
+    } finally {
+        restoringUndo = false;
+    }
+};
+
+const undoAction = () => {
+    if (!undoStack.length) return;
+    clearTimeout(undoCommitTimer);
+    commitUndoSnapshot();
+    const current = lastCommittedState;
+    const prev = undoStack.pop();
+    redoStack.push(current);
+    lastCommittedState = prev;
+    applySnapshot(prev);
+    updateUndoButtons();
+    showToast("Urungkan (Undo) diterapkan.");
+};
+
+const redoAction = () => {
+    if (!redoStack.length) return;
+    clearTimeout(undoCommitTimer);
+    commitUndoSnapshot();
+    const current = lastCommittedState;
+    const next = redoStack.pop();
+    undoStack.push(current);
+    lastCommittedState = next;
+    applySnapshot(next);
+    updateUndoButtons();
+    showToast("Ulangi (Redo) diterapkan.");
+};
 
 // ------------------------------------------
 // Theme Switcher (Dark / Light Mode)
@@ -454,6 +606,7 @@ const setPaperType = (type) => {
     document.querySelectorAll(".paper-opt").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.paper === type);
     });
+    scheduleUndoCommit();
 };
 
 const setInkColor = (color) => {
@@ -465,6 +618,7 @@ const setInkColor = (color) => {
     document.querySelectorAll(".ink-opt").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.ink === color);
     });
+    scheduleUndoCommit();
 };
 
 const setScanEffect = (effect) => {
@@ -473,6 +627,7 @@ const setScanEffect = (effect) => {
         cnNode.classList.remove("scan-none", "scan-clean", "scan-shadow", "scan-warm", "scan-photocopy");
         cnNode.classList.add(`scan-${effect}`);
     }
+    scheduleUndoCommit();
 };
 
 const setDeskBackdrop = (deskType) => {
@@ -487,6 +642,7 @@ const setDeskBackdrop = (deskType) => {
     document.querySelectorAll(".desk-opt").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.desk === deskType);
     });
+    scheduleUndoCommit();
 };
 
 // ------------------------------------------
@@ -541,6 +697,7 @@ const loadPresetTemplate = (presetKey) => {
         const p = presets[presetKey];
         pagesData[activePageIndex] = { ...pagesData[activePageIndex], ...p };
         loadPageDataIntoForm(activePageIndex);
+        scheduleUndoCommit();
         documentTitle = p.title;
         if (docTitleInput) docTitleInput.value = documentTitle;
         showToast(`Template "${p.topic}" berhasil diterapkan!`);
@@ -552,10 +709,7 @@ const loadPresetTemplate = (presetKey) => {
 // ------------------------------------------
 const exportProjectJSON = () => {
     saveCurrentFormToState();
-    const menu = document.getElementById("export-menu");
-    if (menu && !menu.classList.contains("hidden")) {
-        toggleExportMenu();
-    }
+    closeSharePanel();
 
     const projectData = {
         app: "Magernulis",
@@ -735,41 +889,107 @@ const clearForm = async () => {
 // High-Precision Export Features (PNG & Direct PDF)
 // ------------------------------------------
 
+// ------------------------------------------
+// Zoom-Safe Capture (perbaikan bug ekspor)
+// ------------------------------------------
+// html2canvas membaca posisi elemen dari dokumen hidup. Kalau kertas sedang
+// di-zoom (wrapper .canvas-wrapper punya transform scale != 1), semua kata
+// di hasil PNG/ZIP/PDF terekam menumpuk di awal baris, padahal tampilan
+// studio-nya normal. Karena itu setiap capture html2canvas harus jalan
+// dalam keadaan zoom 100%, lalu zoom dikembalikan seperti semula.
+const captureWithZoomReset = async (captureFn) => {
+    const prevZoom = currentZoom;
+    if (prevZoom !== 1) {
+        currentZoom = 1;
+        applyZoom();
+        // Tunggu transisi scale (0.15s) selesai supaya posisi layout stabil.
+        await new Promise(r => setTimeout(r, 250));
+    }
+    try {
+        return await captureFn();
+    } finally {
+        if (prevZoom !== 1) {
+            currentZoom = prevZoom;
+            applyZoom();
+        }
+    }
+};
+
 // 1. Download Current Page PNG
 const downloadPNG = () => {
     saveCurrentFormToState();
-    toggleExportMenu();
+    closeSharePanel();
     showToast("Memproses PNG HD...");
 
     const sanitizeDocTitle = (documentTitle || "Magernulis").replace(/[^a-z0-9]/gi, '_');
     const sanitizePageTitle = (pagesData[activePageIndex].title || `Hal${activePageIndex + 1}`).replace(/[^a-z0-9]/gi, '_');
     const fileName = `Magernulis-${sanitizeDocTitle}-${sanitizePageTitle}.png`;
 
-    const executeExport = () => {
+    const executeExport = async () => {
         if (typeof html2canvas !== "undefined") {
-            html2canvas(cnNode, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: null,
-                logging: false
-            }).then(canvas => {
+            try {
+                const canvas = await html2canvas(cnNode, {
+                    scale: shareScale,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    logging: false
+                });
                 const dataUrl = canvas.toDataURL("image/png");
                 const link = document.createElement("a");
                 link.download = fileName;
                 link.href = dataUrl;
                 link.click();
                 showToast(`Halaman "${pagesData[activePageIndex].title}" berhasil diunduh!`);
-            }).catch(err => {
+            } catch (err) {
                 console.warn("html2canvas fallback:", err);
-            });
+            }
         }
     };
 
     if (document.fonts) {
-        document.fonts.ready.then(executeExport);
+        document.fonts.ready.then(() => captureWithZoomReset(executeExport));
     } else {
-        executeExport();
+        captureWithZoomReset(executeExport);
+    }
+};
+
+// 1b. Download Current Page JPG (dipakai panel Bagikan: jenis file JPG).
+const downloadJPG = () => {
+    saveCurrentFormToState();
+    closeSharePanel();
+    showToast("Memproses JPG HD...");
+
+    const sanitizeDocTitle = (documentTitle || "Magernulis").replace(/[^a-z0-9]/gi, '_');
+    const sanitizePageTitle = (pagesData[activePageIndex].title || `Hal${activePageIndex + 1}`).replace(/[^a-z0-9]/gi, '_');
+    const fileName = `Magernulis-${sanitizeDocTitle}-${sanitizePageTitle}.jpg`;
+
+    const executeExport = async () => {
+        if (typeof html2canvas !== "undefined") {
+            try {
+                const canvas = await html2canvas(cnNode, {
+                    scale: shareScale,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    logging: false
+                });
+                const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+                const link = document.createElement("a");
+                link.download = fileName;
+                link.href = dataUrl;
+                link.click();
+                showToast(`Halaman "${pagesData[activePageIndex].title}" berhasil diunduh!`);
+            } catch (err) {
+                console.warn("html2canvas fallback:", err);
+            }
+        }
+    };
+
+    if (document.fonts) {
+        document.fonts.ready.then(() => captureWithZoomReset(executeExport));
+    } else {
+        captureWithZoomReset(executeExport);
     }
 };
 
@@ -780,7 +1000,7 @@ const downloadPNG = () => {
 //    dibungkus satu file ZIP lewat JSZip (sudah dimuat di index.html).
 const downloadAllPNGZip = async () => {
     saveCurrentFormToState();
-    toggleExportMenu();
+    closeSharePanel();
     showToast("Memproses paket ZIP seluruh halaman...");
 
     if (typeof html2canvas === "undefined" || typeof JSZip === "undefined") {
@@ -793,6 +1013,7 @@ const downloadAllPNGZip = async () => {
     const zip = new JSZip();
 
     try {
+        await captureWithZoomReset(async () => {
         for (let i = 0; i < pagesData.length; i++) {
             activePageIndex = i;
             loadPageDataIntoForm(i);
@@ -802,7 +1023,7 @@ const downloadAllPNGZip = async () => {
             const fileName = `Magernulis-${sanitizeDocTitle}-Hal${i + 1}-${sanitizePageTitle}.png`;
 
             const canvas = await html2canvas(cnNode, {
-                scale: 2,
+                scale: shareScale,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: null,
@@ -820,6 +1041,7 @@ const downloadAllPNGZip = async () => {
         link.click();
         setTimeout(() => URL.revokeObjectURL(url), 5000);
         showToast(`Paket ZIP ${pagesData.length} halaman berhasil diunduh!`);
+        });
     } catch (err) {
         console.error("ZIP export failed:", err);
         showToast("Gagal membuat paket ZIP.");
@@ -833,14 +1055,14 @@ const downloadAllPNGZip = async () => {
 //     tombol mati). CSS @media print sudah menyembunyikan UI studio.
 const printDocument = () => {
     saveCurrentFormToState();
-    toggleExportMenu();
+    closeSharePanel();
     window.print();
 };
 
 // 3. Direct PDF Document Export (Single & Multi-Page)
 const exportPDF = async (allPages = false) => {
     saveCurrentFormToState();
-    toggleExportMenu();
+    closeSharePanel();
     showToast("Membuat dokumen PDF Magernulis...");
 
     if (!window.jspdf || !window.jspdf.jsPDF) {
@@ -865,7 +1087,7 @@ const exportPDF = async (allPages = false) => {
         await new Promise(r => setTimeout(r, 250));
 
         const canvas = await html2canvas(cnNode, {
-            scale: 2,
+            scale: shareScale,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
@@ -880,6 +1102,7 @@ const exportPDF = async (allPages = false) => {
     };
 
     try {
+        await captureWithZoomReset(async () => {
         if (allPages && pagesData.length > 1) {
             for (let i = 0; i < pagesData.length; i++) {
                 if (i > 0) doc.addPage();
@@ -895,6 +1118,7 @@ const exportPDF = async (allPages = false) => {
         const fileName = `Magernulis-${sanitizeDocTitle}.pdf`;
         doc.save(fileName);
         showToast("Berkas PDF Magernulis berhasil diunduh!");
+        });
     } catch (err) {
         console.error("PDF generation failed:", err);
         showToast("Gagal membuat dokumen PDF.");
@@ -907,37 +1131,36 @@ const exportPDF = async (allPages = false) => {
 // 4. Copy to Clipboard
 const copyImageToClipboard = () => {
     saveCurrentFormToState();
-    toggleExportMenu();
+    closeSharePanel();
     showToast("Menyalin gambar...");
 
-    const executeCopy = () => {
+    const executeCopy = async () => {
         if (typeof html2canvas !== "undefined") {
-            html2canvas(cnNode, {
-                scale: 2,
+            const canvas = await html2canvas(cnNode, {
+                scale: shareScale,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: null,
                 logging: false
-            }).then(canvas => {
-                canvas.toBlob(blob => {
-                    if (navigator.clipboard && window.ClipboardItem) {
-                        const item = new ClipboardItem({ "image/png": blob });
-                        navigator.clipboard.write([item]).then(() => {
-                            showToast(`Gambar Halaman "${pagesData[activePageIndex].title}" berhasil disalin! (Ctrl+V)`);
-                        }).catch(err => {
-                            console.error("Clipboard write error:", err);
-                            showToast("Browser tidak mendukung salin langsung. Gunakan Unduh PNG.");
-                        });
-                    }
-                });
+            });
+            canvas.toBlob(blob => {
+                if (navigator.clipboard && window.ClipboardItem) {
+                    const item = new ClipboardItem({ "image/png": blob });
+                    navigator.clipboard.write([item]).then(() => {
+                        showToast(`Gambar Halaman "${pagesData[activePageIndex].title}" berhasil disalin! (Ctrl+V)`);
+                    }).catch(err => {
+                        console.error("Clipboard write error:", err);
+                        showToast("Browser tidak mendukung salin langsung. Gunakan Unduh PNG.");
+                    });
+                }
             });
         }
     };
 
     if (document.fonts) {
-        document.fonts.ready.then(executeCopy);
+        document.fonts.ready.then(() => captureWithZoomReset(executeCopy));
     } else {
-        executeCopy();
+        captureWithZoomReset(executeCopy);
     }
 };
 
@@ -1037,4 +1260,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setPaperType('plain');
     setInkColor('black');
     loadPageDataIntoForm(0);
+    lastCommittedState = snapshotState();
+    updateUndoButtons();
 });
