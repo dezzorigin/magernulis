@@ -1,10 +1,10 @@
 /* ==========================================
-   WriteOnAir Studio - Canva Editor Design System
+   Magernulis Studio - Design System
    ========================================== */
 
 /* 1. Global CSS Reset & Tokens */
 :root {
-    /* Canva Color Palette (Dark Theme Default) */
+    /* Palet Studio Magernulis (tema gelap default) */
     --bg-topbar: #0e131f;
     --bg-rail: #131722;
     --bg-drawer: #181d2a;
@@ -14,21 +14,19 @@
     --input-border: #2d3548;
     --border-color: rgba(255, 255, 255, 0.08);
     --border-card: rgba(255, 255, 255, 0.1);
-    --border-focus: #7d2ae8;
+    --border-focus: #1D4ED8;
 
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
 
     /* Canva Brand Accents */
-    --canva-purple: #7d2ae8;
-    --canva-purple-hover: #6b21a8;
-    --canva-cyan: #00c4cc;
-    --canva-gradient: linear-gradient(135deg, #00c4cc 0%, #7d2ae8 100%);
     --dot-color: rgba(255, 255, 255, 0.07);
 
-    --primary: #7d2ae8;
-    --primary-hover: #6b21a8;
+    --primary: #1D4ED8;
+    --pulpen: #1D4ED8;
+    --pulpen-hover: #1E40AF;
+    --primary-hover: #1E40AF;
     --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.35);
 
     --canvas-font-size: 1.25rem;
@@ -46,7 +44,7 @@
     --input-border: #cbd5e1;
     --border-color: #e2e8f0;
     --border-card: #e2e8f0;
-    --border-focus: #7d2ae8;
+    --border-focus: #1D4ED8;
 
     --text-primary: #0f172a;
     --text-secondary: #475569;
@@ -63,7 +61,7 @@
 body, html {
     width: 100%;
     height: 100%;
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
     background-color: var(--bg-workspace);
     color: var(--text-primary);
     overflow: hidden;
@@ -112,11 +110,11 @@ body, html {
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: var(--canva-gradient);
+    background: var(--pulpen);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 10px rgba(125, 42, 232, 0.3);
+    box-shadow: 0 2px 10px rgba(29, 78, 216, 0.3);
 }
 
 .brand-svg {
@@ -129,9 +127,7 @@ body, html {
     font-size: 1.15rem;
     font-weight: 800;
     letter-spacing: -0.02em;
-    background: var(--canva-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
 }
 
 .topbar-divider {
@@ -162,7 +158,7 @@ body, html {
 }
 
 .doc-title-input:hover, .doc-title-input:focus {
-    background: rgba(125, 42, 232, 0.08);
+    background: rgba(29, 78, 216, 0.08);
     border-color: var(--border-focus);
 }
 
@@ -230,7 +226,7 @@ body, html {
 }
 
 .theme-toggle-btn:hover {
-    border-color: var(--canva-purple);
+    border-color: var(--pulpen);
 }
 
 /* Canva Share / Export Dropdown Button */
@@ -238,7 +234,7 @@ body, html {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--canva-purple);
+    background: var(--pulpen);
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -246,14 +242,14 @@ body, html {
     font-weight: 700;
     font-size: 0.84rem;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(125, 42, 232, 0.35);
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
     transition: all 0.15s ease;
 }
 
 .btn-canva-share:hover {
-    background: var(--canva-purple-hover);
+    background: var(--pulpen-hover);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(125, 42, 232, 0.45);
+    box-shadow: 0 6px 16px rgba(29, 78, 216, 0.45);
 }
 
 /* Export Dropdown Menu */
@@ -300,7 +296,7 @@ body, html {
 
 .dropdown-item:hover {
     background: var(--input-bg);
-    color: var(--canva-purple);
+    color: var(--pulpen);
 }
 
 .dropdown-divider {
@@ -358,7 +354,7 @@ body, html {
 
 .rail-btn:hover {
     color: var(--text-primary);
-    background: rgba(125, 42, 232, 0.08);
+    background: rgba(29, 78, 216, 0.08);
 }
 
 .rail-btn:hover .rail-icon {
@@ -366,8 +362,8 @@ body, html {
 }
 
 .rail-btn.active {
-    color: var(--canva-purple);
-    background: rgba(125, 42, 232, 0.12);
+    color: var(--pulpen);
+    background: rgba(29, 78, 216, 0.12);
 }
 
 .rail-btn.active::after {
@@ -377,7 +373,7 @@ body, html {
     top: 15%;
     bottom: 15%;
     width: 3px;
-    background: var(--canva-purple);
+    background: var(--pulpen);
     border-radius: 0 4px 4px 0;
 }
 
@@ -431,7 +427,7 @@ body, html {
 
 .drawer-collapse-btn:hover {
     color: var(--text-primary);
-    border-color: var(--canva-purple);
+    border-color: var(--pulpen);
 }
 
 .drawer-content {
@@ -499,13 +495,13 @@ body, html {
 .label-val span {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--canva-purple);
+    color: var(--pulpen);
 }
 
 .btn-text {
     background: transparent;
     border: none;
-    color: var(--canva-purple);
+    color: var(--pulpen);
     font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
@@ -529,8 +525,8 @@ input[type="text"], textarea, select {
 }
 
 input[type="text"]:focus, textarea:focus, select:focus {
-    border-color: var(--canva-purple);
-    box-shadow: 0 0 0 3px rgba(125, 42, 232, 0.15);
+    border-color: var(--pulpen);
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
 }
 
 textarea {
@@ -565,8 +561,8 @@ textarea {
 }
 
 .paper-opt.active {
-    border-color: var(--canva-purple);
-    background: rgba(125, 42, 232, 0.1);
+    border-color: var(--pulpen);
+    background: rgba(29, 78, 216, 0.1);
 }
 
 .p-preview {
@@ -631,8 +627,8 @@ textarea {
 }
 
 .ink-opt.active {
-    border-color: var(--canva-purple);
-    background: rgba(125, 42, 232, 0.1);
+    border-color: var(--pulpen);
+    background: rgba(29, 78, 216, 0.1);
 }
 
 /* Gacha & Buttons */
@@ -651,14 +647,14 @@ textarea {
 }
 
 .btn-gacha {
-    background: var(--canva-gradient);
+    background: var(--pulpen);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(125, 42, 232, 0.35);
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
 }
 
 .btn-gacha:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(125, 42, 232, 0.45);
+    box-shadow: 0 6px 18px rgba(29, 78, 216, 0.45);
 }
 
 .btn-secondary {
@@ -668,8 +664,8 @@ textarea {
 }
 
 .btn-secondary:hover {
-    border-color: var(--canva-purple);
-    color: var(--canva-purple);
+    border-color: var(--pulpen);
+    color: var(--pulpen);
 }
 
 .btn-ghost {
@@ -712,12 +708,12 @@ textarea {
 }
 
 .page-item:hover {
-    border-color: var(--canva-purple);
+    border-color: var(--pulpen);
 }
 
 .page-item.active {
-    border-color: var(--canva-purple);
-    background: rgba(125, 42, 232, 0.12);
+    border-color: var(--pulpen);
+    background: rgba(29, 78, 216, 0.12);
 }
 
 .page-action-buttons {
@@ -934,7 +930,7 @@ textarea {
     height: 34px;
     border-radius: 8px;
     object-fit: cover;
-    box-shadow: 0 2px 10px rgba(125, 42, 232, 0.35);
+    box-shadow: 0 2px 10px rgba(29, 78, 216, 0.35);
 }
 
 /* ------------------------------------------
@@ -1022,13 +1018,13 @@ textarea {
 }
 
 .page-pill:hover {
-    border-color: var(--canva-purple);
+    border-color: var(--pulpen);
 }
 
 .page-pill.active {
-    background: var(--canva-purple);
+    background: var(--pulpen);
     color: #ffffff;
-    border-color: var(--canva-purple);
+    border-color: var(--pulpen);
 }
 
 /* Zoom Toolbar */
@@ -1060,14 +1056,14 @@ textarea {
 }
 
 .zoom-btn:hover {
-    border-color: var(--canva-purple);
-    color: var(--canva-purple);
+    border-color: var(--pulpen);
+    color: var(--pulpen);
 }
 
 .zoom-slider {
     width: 85px;
     height: 4px;
-    accent-color: var(--canva-purple);
+    accent-color: var(--pulpen);
     cursor: pointer;
     vertical-align: middle;
     margin: 0 0.2rem;
@@ -1108,7 +1104,7 @@ textarea {
     bottom: 56px;
     right: 20px;
     background: var(--bg-card);
-    border: 1px solid var(--canva-purple);
+    border: 1px solid var(--pulpen);
     color: var(--text-primary);
     padding: 0.75rem 1.25rem;
     border-radius: 10px;
@@ -1224,14 +1220,14 @@ textarea {
 }
 
 .modal-confirm {
-    background: var(--canva-gradient);
+    background: var(--pulpen);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(125, 42, 232, 0.35);
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
 }
 
 .modal-confirm:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(125, 42, 232, 0.45);
+    box-shadow: 0 6px 18px rgba(29, 78, 216, 0.45);
 }
 
 /* ------------------------------------------
@@ -1289,8 +1285,8 @@ textarea {
 }
 
 .preset-card:hover {
-    border-color: var(--canva-purple);
-    background: rgba(125, 42, 232, 0.12);
+    border-color: var(--pulpen);
+    background: rgba(29, 78, 216, 0.12);
     transform: translateY(-1px);
 }
 
@@ -1330,14 +1326,14 @@ textarea {
 }
 
 .desk-opt:hover {
-    border-color: var(--canva-purple);
+    border-color: var(--pulpen);
     color: var(--text-primary);
 }
 
 .desk-opt.active {
-    border-color: var(--canva-purple);
-    background: rgba(125, 42, 232, 0.15);
-    color: var(--canva-purple);
+    border-color: var(--pulpen);
+    background: rgba(29, 78, 216, 0.15);
+    color: var(--pulpen);
 }
 
 .d-preview {
@@ -1353,11 +1349,11 @@ textarea {
 }
 
 .d-wood {
-    background: linear-gradient(135deg, #5c3a21 0%, #3d2312 100%);
+    background: #3d2312;
 }
 
 .d-studio {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    background: #0f172a;
 }
 
 /* Studio Desk Background Overrides */
@@ -1365,7 +1361,6 @@ textarea {
     background-color: #2c1a0e;
     background-image: 
         radial-gradient(rgba(0, 0, 0, 0.25) 1px, transparent 1px),
-        linear-gradient(135deg, rgba(74, 46, 27, 0.95) 0%, rgba(38, 22, 12, 0.98) 100%),
         repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 2px, transparent 2px, transparent 14px);
 }
 
@@ -1402,7 +1397,7 @@ textarea {
 .pen-body {
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, #1e293b 0%, #334155 40%, #0f172a 100%);
+    background: #1e293b;
     border-radius: 12px 12px 3px 3px;
     position: relative;
 }
@@ -1412,7 +1407,7 @@ textarea {
     top: 0;
     width: 100%;
     height: 110px;
-    background: linear-gradient(to right, #7d2ae8 0%, #9333ea 50%, #6b21a8 100%);
+    background: #1D4ED8;
     border-radius: 10px 10px 0 0;
     box-shadow: inset 0 -2px 5px rgba(0,0,0,0.3);
 }
@@ -1423,7 +1418,7 @@ textarea {
     left: 4px;
     width: 5px;
     height: 75px;
-    background: linear-gradient(to right, #e2e8f0, #94a3b8);
+    background: #cbd5e1;
     border-radius: 3px;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
 }
@@ -1433,7 +1428,7 @@ textarea {
     bottom: 30px;
     width: 100%;
     height: 70px;
-    background: repeating-linear-gradient(0deg, #1e293b, #1e293b 3px, #0f172a 4px, #0f172a 7px);
+    background: #0f172a;
 }
 
 .pen-tip {
@@ -1467,3 +1462,88 @@ textarea {
     filter: grayscale(100%) contrast(230%) brightness(85%);
 }
 
+
+/* ------------------------------------------
+   A11Y, REDUCED MOTION & MOBILE (proper rebuild)
+   ------------------------------------------ */
+:focus-visible {
+    outline: 2px solid var(--pulpen);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .canva-topbar {
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .canva-topbar::-webkit-scrollbar {
+        display: none;
+    }
+    .topbar-center {
+        display: none;
+    }
+    .topbar-action-btn span,
+    .theme-toggle-btn .theme-text {
+        display: none;
+    }
+    .doc-title-input {
+        max-width: 130px;
+    }
+    .canva-icon-rail {
+        width: 56px;
+    }
+    .rail-btn span {
+        font-size: 0.58rem;
+    }
+    .canva-drawer {
+        position: fixed;
+        left: 56px;
+        top: 52px;
+        bottom: 48px;
+        width: min(300px, calc(100vw - 56px));
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .canva-drawer.collapsed {
+        margin-left: calc(-1 * min(300px, calc(100vw - 56px)));
+    }
+    .canvas-viewport {
+        padding: 1rem;
+    }
+    .canva-bottombar {
+        flex-wrap: wrap;
+        height: auto;
+        min-height: 48px;
+        row-gap: 0.25rem;
+    }
+    .zoom-slider {
+        width: 60px;
+    }
+    .toast {
+        left: 16px;
+        right: 16px;
+        bottom: 64px;
+        text-align: center;
+    }
+}
+
+/* Ikon SVG preset (pengganti emoji) */
+.preset-icon-svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--pulpen);
+}
+
+.page-item-svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    vertical-align: -2px;
+}
