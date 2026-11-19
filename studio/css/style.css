@@ -747,7 +747,11 @@ textarea {
 
 .canvas-wrapper {
     transform-origin: top center;
-    transition: transform 0.15s ease-out;
+    /* SENGAJA tanpa transition: transform. Transisi membuat skala fit
+       belum sampai target saat kertas pertama terlihat (computed transform
+       masih 1.0 lalu merangkak ke 0.82 selama ~150ms) — kertas terukur
+       kepotong di tes dan berkedip 100% saat dibuka. Zoom manual jadi
+       snap, bukan animasi; fit harus deterministik. */
 }
 
 /* ------------------------------------------

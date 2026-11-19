@@ -46,7 +46,10 @@ dan proyek ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   akhir render pertama / load) dan ruang vertikal diukur dari jendela
   terlihat dikurangi tinggi topbar + bottombar — bukan dari tinggi wadah,
   yang di headless CI bisa lebih tinggi dari layar. (`100dvh` sempat
-  dicoba lalu dicabut: di CI malah membuat wadah lebih tinggi.)
+  dicoba lalu dicabut: di CI malah membuat wadah lebih tinggi.) Transisi
+  `transform` di `.canvas-wrapper` DICABUT: transisi membuat skala fit
+  belum sampai target saat kertas pertama terlihat (computed transform
+  masih 1.0 lalu merangkak ke 0.82) sehingga kertas terukur kepotong.
 
 ### Changed
 - Pilihan font tulisan tangan dipangkas dari 17 jadi 9: semua font yang rapih
